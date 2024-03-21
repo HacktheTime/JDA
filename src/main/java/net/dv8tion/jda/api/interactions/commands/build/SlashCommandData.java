@@ -18,9 +18,7 @@ package net.dv8tion.jda.api.interactions.commands.build;
 
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.*;
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction;
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationMap;
 import net.dv8tion.jda.api.utils.data.DataArray;
@@ -62,7 +60,30 @@ public interface SlashCommandData extends CommandData
 
     @Nonnull
     @Override
+    @Deprecated
     SlashCommandData setGuildOnly(boolean guildOnly);
+
+    @Nonnull
+    @Override
+    default SlashCommandData setContexts(@Nonnull InteractionContextType... contexts)
+    {
+        return (SlashCommandData) CommandData.super.setContexts(contexts);
+    }
+
+    @Nonnull
+    @Override
+    SlashCommandData setContexts(@Nonnull Collection<InteractionContextType> contexts);
+
+    @Nonnull
+    @Override
+    default SlashCommandData setIntegrationTypes(@Nonnull IntegrationType... integrationTypes)
+    {
+        return (SlashCommandData) CommandData.super.setIntegrationTypes(integrationTypes);
+    }
+
+    @Nonnull
+    @Override
+    SlashCommandData setIntegrationTypes(@Nonnull Collection<IntegrationType> integrationTypes);
 
     @Nonnull
     @Override
