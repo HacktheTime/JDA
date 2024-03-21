@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package net.dv8tion.jda.api.interactions.commands;
+package net.dv8tion.jda.api.interactions;
 
 import javax.annotation.Nonnull;
 
 //TODO document
-public enum IntegrationType
+public enum InteractionContextType
 {
     //TODO document
     UNKNOWN(-1),
     //TODO document
-    GUILD_INSTALL(0),
+    GUILD(0),
     //TODO document
-    USER_INSTALL(1);
+    BOT_DM(1),
+    //TODO document
+    PRIVATE_CHANNEL(2);
 
     private final int key;
 
-    IntegrationType(int key) {
+    InteractionContextType(int key) {
         this.key = key;
     }
 
@@ -42,9 +44,9 @@ public enum IntegrationType
 
     //TODO document
     @Nonnull
-    public static IntegrationType fromKey(int key)
+    public static InteractionContextType fromKey(int key)
     {
-        for (IntegrationType value : values())
+        for (InteractionContextType value : values())
         {
             if (value.key == key)
                 return value;
