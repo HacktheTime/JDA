@@ -17,27 +17,37 @@
 package net.dv8tion.jda.internal.interactions;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.IntegrationType;
 import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.MemberImpl;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.dv8tion.jda.internal.entities.channel.concrete.PrivateChannelImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Set;
 
 public class InteractionImpl implements Interaction
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Interaction.class);
+
     protected final long id;
     protected final long channelId;
     protected final int type;
@@ -47,6 +57,10 @@ public class InteractionImpl implements Interaction
     protected final User user;
     protected final Channel channel;
     protected final DiscordLocale userLocale;
+    protected final InteractionContextType context;
+    protected final long guildIntegrationOwner;
+    protected final UserSnowflake userIntegrationOwner;
+    protected final Set<Permission> userPermissions, appPermissions;
     protected final JDAImpl api;
 
     //This is used to give a proper error when an interaction is ack'd twice
@@ -62,6 +76,21 @@ public class InteractionImpl implements Interaction
         this.guild = jda.getGuildById(data.getUnsignedLong("guild_id", 0L));
         this.channelId = data.getUnsignedLong("channel_id", 0L);
         this.userLocale = DiscordLocale.from(data.getString("locale", "en-US"));
+        if (data.hasKey("context"))
+            this.context = InteractionContextType.fromKey(data.getString("context"));
+        else
+        {
+            //TODO someone claimed they received no context, it is documented as being nullable,
+            // but I've not seen context being null.
+            LOGGER.warn("No context provided in interaction");
+            this.context = null;
+        }
+        this.userPermissions = Collections.unmodifiableSet(Permission.getPermissions(data.getObject("channel").getLong("permissions")));
+        this.appPermissions = Collections.unmodifiableSet(Permission.getPermissions(data.getLong("app_permissions")));
+
+        final DataObject authorizingIntegrationOwnersDict = data.getObject("authorizing_integration_owners");
+        this.userIntegrationOwner = UserSnowflake.fromId(authorizingIntegrationOwnersDict.getLong(IntegrationType.USER_INSTALL.getType()));
+        this.guildIntegrationOwner = authorizingIntegrationOwnersDict.getLong(IntegrationType.GUILD_INSTALL.getType(), -1);
 
         DataObject channelJson = data.getObject("channel");
         if (guild != null)
@@ -167,6 +196,49 @@ public class InteractionImpl implements Interaction
     public DiscordLocale getUserLocale()
     {
         return userLocale;
+    }
+
+    @Nullable
+    @Override
+    public InteractionContextType getContext()
+    {
+        return context;
+    }
+
+    @Nonnull
+    @Override
+    public Set<Permission> getUserPermissions()
+    {
+        return userPermissions;
+    }
+
+    @Nonnull
+    @Override
+    public Set<Permission> getApplicationPermissions()
+    {
+        return appPermissions;
+    }
+
+    @Nonnull
+    @Override
+    public UserSnowflake getUserIntegrationOwner()
+    {
+        return userIntegrationOwner;
+    }
+
+    @Override
+    public boolean hasGuildIntegrationOwner()
+    {
+        return guildIntegrationOwner != -1;
+    }
+
+    @Override
+    public long getGuildIntegrationOwner()
+    {
+        if (!hasGuildIntegrationOwner())
+            throw new IllegalStateException("This interaction has no guild integration owner");
+
+        return guildIntegrationOwner;
     }
 
     @Nonnull
