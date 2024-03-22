@@ -17,6 +17,9 @@
 package net.dv8tion.jda.api.interactions;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
 //TODO document
 public enum IntegrationType
@@ -27,6 +30,9 @@ public enum IntegrationType
     GUILD_INSTALL(0),
     //TODO document
     USER_INSTALL(1);
+
+    //TODO document
+    public static final Set<IntegrationType> ALL = Collections.unmodifiableSet(EnumSet.of(GUILD_INSTALL, USER_INSTALL));
 
     private final int key;
 
