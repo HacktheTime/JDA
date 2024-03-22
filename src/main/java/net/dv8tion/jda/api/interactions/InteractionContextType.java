@@ -25,36 +25,37 @@ import java.util.Set;
 public enum InteractionContextType
 {
     //TODO document
-    UNKNOWN(-1),
+    UNKNOWN("-1"),
     //TODO document
-    GUILD(0),
+    GUILD("0"),
     //TODO document
-    BOT_DM(1),
+    BOT_DM("1"),
     //TODO document
-    PRIVATE_CHANNEL(2);
+    PRIVATE_CHANNEL("2");
 
     //TODO document
     public static final Set<InteractionContextType> ALL = Collections.unmodifiableSet(EnumSet.of(GUILD, BOT_DM, PRIVATE_CHANNEL));
 
-    private final int key;
+    private final String key;
 
-    InteractionContextType(int key) {
+    InteractionContextType(String key) {
         this.key = key;
     }
 
     //TODO document
-    public int getType()
+    @Nonnull
+    public String getType()
     {
         return key;
     }
 
     //TODO document
     @Nonnull
-    public static InteractionContextType fromKey(int key)
+    public static InteractionContextType fromKey(@Nonnull String key)
     {
         for (InteractionContextType value : values())
         {
-            if (value.key == key)
+            if (value.key.equals(key))
                 return value;
         }
         return UNKNOWN;

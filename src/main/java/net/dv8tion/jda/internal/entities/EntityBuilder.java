@@ -2510,7 +2510,7 @@ public class EntityBuilder
                             ))
                             .orElse(null);
 
-                    map.put(IntegrationType.fromKey(Integer.parseInt(key)), new ApplicationInfoImpl.IntegrationTypeConfigurationImpl(installParameters));
+                    map.put(IntegrationType.fromKey(key), new ApplicationInfoImpl.IntegrationTypeConfigurationImpl(installParameters));
                 }
                 return map;
             })

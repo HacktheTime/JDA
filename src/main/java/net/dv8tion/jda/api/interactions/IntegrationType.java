@@ -25,34 +25,35 @@ import java.util.Set;
 public enum IntegrationType
 {
     //TODO document
-    UNKNOWN(-1),
+    UNKNOWN("-1"),
     //TODO document
-    GUILD_INSTALL(0),
+    GUILD_INSTALL("0"),
     //TODO document
-    USER_INSTALL(1);
+    USER_INSTALL("1");
 
     //TODO document
     public static final Set<IntegrationType> ALL = Collections.unmodifiableSet(EnumSet.of(GUILD_INSTALL, USER_INSTALL));
 
-    private final int key;
+    private final String key;
 
-    IntegrationType(int key) {
+    IntegrationType(String key) {
         this.key = key;
     }
 
     //TODO document
-    public int getType()
+    @Nonnull
+    public String getType()
     {
         return key;
     }
 
     //TODO document
     @Nonnull
-    public static IntegrationType fromKey(int key)
+    public static IntegrationType fromKey(@Nonnull String key)
     {
         for (IntegrationType value : values())
         {
-            if (value.key == key)
+            if (value.key.equals(key))
                 return value;
         }
         return UNKNOWN;
