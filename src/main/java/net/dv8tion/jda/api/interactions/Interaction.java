@@ -237,11 +237,11 @@ public interface Interaction extends ISnowflake
     @Nullable
     InteractionContextType getContext();
 
-    //TODO document
+    //TODO see ~ net/dv8tion/jda/internal/interactions/InteractionImpl.java:86
     @Nonnull
     Set<Permission> getUserPermissions();
 
-    //TODO document
+    //TODO see ~ net/dv8tion/jda/internal/interactions/InteractionImpl.java:86
     @Nonnull
     Set<Permission> getApplicationPermissions();
 
