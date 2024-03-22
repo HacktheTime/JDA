@@ -18,7 +18,10 @@ package net.dv8tion.jda.api.interactions;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -242,15 +245,9 @@ public interface Interaction extends ISnowflake
     @Nonnull
     Set<Permission> getApplicationPermissions();
 
-    //TODO document, not the same as the caller id!
+    //TODO document
     @Nonnull
-    UserSnowflake getUserIntegrationOwner();
-
-    //TODO document, false if absent
-    boolean hasGuildIntegrationOwner();
-
-    //TODO document, throw if absent, guild id in a guild, 0 in bot dms
-    long getGuildIntegrationOwner();
+    IntegrationOwners getIntegrationOwners();
 
     /**
      * Returns the {@link net.dv8tion.jda.api.JDA JDA} instance of this interaction

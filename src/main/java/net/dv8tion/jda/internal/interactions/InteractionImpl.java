@@ -21,13 +21,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.IntegrationOwners;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.utils.data.DataObject;
@@ -58,8 +57,7 @@ public class InteractionImpl implements Interaction
     protected final Channel channel;
     protected final DiscordLocale userLocale;
     protected final InteractionContextType context;
-    protected final long guildIntegrationOwner;
-    protected final UserSnowflake userIntegrationOwner;
+    protected final IntegrationOwners integrationOwners;
     protected final Set<Permission> userPermissions, appPermissions;
     protected final JDAImpl api;
 
@@ -87,10 +85,7 @@ public class InteractionImpl implements Interaction
         }
         this.userPermissions = Collections.unmodifiableSet(Permission.getPermissions(data.getObject("channel").getLong("permissions")));
         this.appPermissions = Collections.unmodifiableSet(Permission.getPermissions(data.getLong("app_permissions")));
-
-        final DataObject authorizingIntegrationOwnersDict = data.getObject("authorizing_integration_owners");
-        this.userIntegrationOwner = UserSnowflake.fromId(authorizingIntegrationOwnersDict.getLong(IntegrationType.USER_INSTALL.getType()));
-        this.guildIntegrationOwner = authorizingIntegrationOwnersDict.getLong(IntegrationType.GUILD_INSTALL.getType(), -1);
+        this.integrationOwners = new IntegrationOwnersImpl(data.getObject("authorizing_integration_owners"));
 
         DataObject channelJson = data.getObject("channel");
         if (guild != null)
@@ -221,24 +216,9 @@ public class InteractionImpl implements Interaction
 
     @Nonnull
     @Override
-    public UserSnowflake getUserIntegrationOwner()
+    public IntegrationOwners getIntegrationOwners()
     {
-        return userIntegrationOwner;
-    }
-
-    @Override
-    public boolean hasGuildIntegrationOwner()
-    {
-        return guildIntegrationOwner != -1;
-    }
-
-    @Override
-    public long getGuildIntegrationOwner()
-    {
-        if (!hasGuildIntegrationOwner())
-            throw new IllegalStateException("This interaction has no guild integration owner");
-
-        return guildIntegrationOwner;
+        return integrationOwners;
     }
 
     @Nonnull
