@@ -19,7 +19,7 @@ package net.dv8tion.jda.internal.entities.channel.middleman;
 import gnu.trove.map.TLongObjectMap;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.utils.MiscUtil;
-import net.dv8tion.jda.internal.entities.UnknownGuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.StandardGuildChannelMixin;
 
 public abstract class AbstractStandardGuildChannelImpl<T extends AbstractStandardGuildChannelImpl<T>> extends AbstractGuildChannelImpl<T>
@@ -30,7 +30,7 @@ public abstract class AbstractStandardGuildChannelImpl<T extends AbstractStandar
     protected long parentCategoryId;
     protected int position;
 
-    public AbstractStandardGuildChannelImpl(long id, UnknownGuildImpl guild)
+    public AbstractStandardGuildChannelImpl(long id, PartialGuildImpl guild)
     {
         super(id, guild);
     }

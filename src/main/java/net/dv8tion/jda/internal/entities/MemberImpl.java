@@ -49,7 +49,7 @@ public class MemberImpl implements Member
     private final Set<Role> roles = ConcurrentHashMap.newKeySet();
     private final GuildVoiceState voiceState;
 
-    private UnknownGuildImpl guild;
+    private PartialGuildImpl guild;
     private User user;
     private String nickname;
     private String avatarId;
@@ -60,7 +60,7 @@ public class MemberImpl implements Member
     // Permissions calculated by Discord
     private long interactionPermissions;
 
-    public MemberImpl(UnknownGuildImpl guild, User user)
+    public MemberImpl(PartialGuildImpl guild, User user)
     {
         this.api = (JDAImpl) user.getJDA();
         this.guild = guild;
@@ -99,12 +99,12 @@ public class MemberImpl implements Member
     {
         if (!hasGuild())
             throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
-        return (GuildImpl) getUnknownGuild();
+        return (GuildImpl) getPartialGuild();
     }
 
     @Nonnull
     @Override
-    public UnknownGuild getUnknownGuild()
+    public PartialGuild getPartialGuild()
     {
         GuildImpl realGuild = (GuildImpl) api.getGuildById(guild.getIdLong());
         if (realGuild != null)
@@ -125,7 +125,7 @@ public class MemberImpl implements Member
     {
         if (hasTimeJoined())
             return Helpers.toOffset(joinDate);
-        return getUnknownGuild().getTimeCreated();
+        return getPartialGuild().getTimeCreated();
     }
 
     @Override
@@ -515,7 +515,7 @@ public class MemberImpl implements Member
         return new EntityString(this)
                 .setName(getEffectiveName())
                 .addMetadata("user", getUser())
-                .addMetadata("guild", getUnknownGuild())
+                .addMetadata("guild", getPartialGuild())
                 .toString();
     }
 }

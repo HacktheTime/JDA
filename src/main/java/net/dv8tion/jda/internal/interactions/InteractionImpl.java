@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.UnknownGuild;
+import net.dv8tion.jda.api.entities.PartialGuild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -35,7 +35,7 @@ import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.MemberImpl;
-import net.dv8tion.jda.internal.entities.UnknownGuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.dv8tion.jda.internal.entities.channel.concrete.PrivateChannelImpl;
 
@@ -50,7 +50,7 @@ public class InteractionImpl implements Interaction
     protected final long channelId;
     protected final int type;
     protected final String token;
-    protected final UnknownGuild guild;
+    protected final PartialGuild guild;
     protected final Member member;
     protected final User user;
     protected final Channel channel;
@@ -70,7 +70,7 @@ public class InteractionImpl implements Interaction
         this.id = data.getUnsignedLong("id");
         this.token = data.getString("token");
         this.type = data.getInt("type");
-        this.guild = getOrCreateUnknownGuild(data);
+        this.guild = getOrCreatePartialGuild(data);
         this.channelId = data.getUnsignedLong("channel_id", 0L);
         this.userLocale = DiscordLocale.from(data.getString("locale", "en-US"));
         // Absent in guild-scoped commands
@@ -95,9 +95,9 @@ public class InteractionImpl implements Interaction
                 throw new IllegalStateException("Failed to create channel instance for interaction! Channel Type: " + channelJson.getInt("type"));
             this.channel = channel;
         }
-        else if (guild instanceof UnknownGuildImpl)
+        else if (guild instanceof PartialGuildImpl)
         {
-            member = jda.getEntityBuilder().createMemberFromUnknownGuild((UnknownGuildImpl) guild, data.getObject("member"))
+            member = jda.getEntityBuilder().createMemberFromPartialGuild((PartialGuildImpl) guild, data.getObject("member"))
                     .setInteractionPermissions(data.getObject("member").getLong("permissions"));
             user = member.getUser();
 
@@ -110,7 +110,7 @@ public class InteractionImpl implements Interaction
                             .put("deny", 0)
             )));
 
-            channel = jda.getEntityBuilder().createGuildChannelFromUnknownGuild((UnknownGuildImpl) guild, channelJson);
+            channel = jda.getEntityBuilder().createGuildChannelFromPartialGuild((PartialGuildImpl) guild, channelJson);
             if (channel == null)
                 throw new IllegalStateException("Failed to create channel instance for interaction! Channel Type: " + channelJson.getInt("type"));
         }
@@ -143,17 +143,17 @@ public class InteractionImpl implements Interaction
         }
     }
 
-    private UnknownGuild getOrCreateUnknownGuild(DataObject data)
+    private PartialGuild getOrCreatePartialGuild(DataObject data)
     {
-        UnknownGuild unknownGuild = null;
+        PartialGuild partialGuild = null;
         if (data.hasKey("guild_id"))
         {
             final long guildId = data.getUnsignedLong("guild_id");
-            unknownGuild = api.getGuildById(guildId);
-            if (unknownGuild == null)
-                unknownGuild = new UnknownGuildImpl(api, guildId);
+            partialGuild = api.getGuildById(guildId);
+            if (partialGuild == null)
+                partialGuild = new PartialGuildImpl(api, guildId);
         }
-        return unknownGuild;
+        return partialGuild;
     }
 
     // Used to allow interaction hook to send messages after acknowledgements
@@ -210,7 +210,7 @@ public class InteractionImpl implements Interaction
 
     @Nullable
     @Override
-    public UnknownGuild getUnknownGuild()
+    public PartialGuild getPartialGuild()
     {
         return guild;
     }

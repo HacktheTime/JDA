@@ -284,12 +284,12 @@ public class RoleImpl implements Role
     {
         if (!hasGuild())
             throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
-        return (Guild) getUnknownGuild();
+        return (Guild) getPartialGuild();
     }
 
     @Nonnull
     @Override
-    public UnknownGuild getUnknownGuild()
+    public PartialGuild getPartialGuild()
     {
         GuildImpl realGuild = (GuildImpl) api.getGuildById(guild.getIdLong());
         if (realGuild != null)

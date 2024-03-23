@@ -59,7 +59,7 @@ import java.util.Set;
  * <p><b>You can only acknowledge an interaction once!</b> Any additional calls to reply/deferReply will result in exceptions.
  * You can use {@link #isAcknowledged()} to check whether the interaction has been acknowledged already.
  */
-public interface Interaction extends ISnowflake, IUnknownGuildHolder
+public interface Interaction extends ISnowflake, IPartialGuildHolder
 {
     /**
      * The raw interaction type.
@@ -100,13 +100,13 @@ public interface Interaction extends ISnowflake, IUnknownGuildHolder
 
     /**
      * Whether this interaction came from a {@link Guild}.
-     * <br>This is identical to {@code getUnknownGuild() != null}
+     * <br>This is identical to {@code getPartialGuild() != null}
      *
      * @return True, if this interaction happened in a guild
      */
     default boolean isFromGuild()
     {
-        return getUnknownGuild() != null;
+        return getPartialGuild() != null;
     }
 
     /**

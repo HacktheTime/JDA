@@ -274,7 +274,7 @@ public class PermissionUtil
         Checks.notNull(member, "Member");
         Checks.notNull(permissions, "Permissions");
 
-        checkGuild(channel.getUnknownGuild(), member.getUnknownGuild(), "Member");
+        checkGuild(channel.getPartialGuild(), member.getPartialGuild(), "Member");
 
         long effectivePerms = getEffectivePermission(channel, member);
         return isApplied(effectivePerms, Permission.getRaw(permissions));
@@ -345,7 +345,7 @@ public class PermissionUtil
         Checks.notNull(channel, "Channel");
         Checks.notNull(member, "Member");
 
-        Checks.check(channel.getUnknownGuild().equals(member.getUnknownGuild()), "Provided channel and provided member are not of the same guild!");
+        Checks.check(channel.getPartialGuild().equals(member.getPartialGuild()), "Provided channel and provided member are not of the same guild!");
 
         if (!member.hasGuild())
             return member.getEffectivePermissionsRaw();
@@ -411,7 +411,7 @@ public class PermissionUtil
         Checks.notNull(channel, "Channel");
         Checks.notNull(role, "Role");
 
-        if (!channel.getUnknownGuild().equals(role.getUnknownGuild()))
+        if (!channel.getPartialGuild().equals(role.getPartialGuild()))
             throw new IllegalArgumentException("Provided channel and role are not of the same guild!");
 
         long permissions = getExplicitPermission(channel, role);
@@ -519,7 +519,7 @@ public class PermissionUtil
         Checks.notNull(channel, "Channel");
         Checks.notNull(member, "Member");
 
-        checkGuild(channel.getUnknownGuild(), member.getUnknownGuild(), "Member");
+        checkGuild(channel.getPartialGuild(), member.getPartialGuild(), "Member");
 
         long permission = includeRoles ? getExplicitPermission(member) : 0L;
 
@@ -596,7 +596,7 @@ public class PermissionUtil
         IPermissionContainer permsChannel = channel.getPermissionContainer();
 
         final Guild guild = role.getGuild();
-        checkGuild(channel.getUnknownGuild(), guild, "Role");
+        checkGuild(channel.getPartialGuild(), guild, "Role");
 
         long permission = includeRoles ? role.getPermissionsRaw() | guild.getPublicRole().getPermissionsRaw() : 0;
         PermissionOverride override = permsChannel.getPermissionOverride(guild.getPublicRole());
@@ -678,7 +678,7 @@ public class PermissionUtil
         return permission;
     }
 
-    private static void checkGuild(UnknownGuild o1, UnknownGuild o2, String name)
+    private static void checkGuild(PartialGuild o1, PartialGuild o2, String name)
     {
         Checks.check(o1.equals(o2),
             "Specified %s is not in the same guild! (%s / %s)", name, o1, o2);

@@ -430,13 +430,13 @@ public class EntityBuilder
         }
     }
 
-    public GuildChannel createGuildChannelFromUnknownGuild(UnknownGuildImpl guildObj, DataObject channelData)
+    public GuildChannel createGuildChannelFromPartialGuild(PartialGuildImpl guildObj, DataObject channelData)
     {
         final ChannelType channelType = ChannelType.fromId(channelData.getInt("type"));
         switch (channelType)
         {
         case TEXT:
-            return createTextChannelFromUnknownGuild(guildObj, channelData);
+            return createTextChannelFromPartialGuild(guildObj, channelData);
         case NEWS:
 //            return createNewsChannel(guildObj, channelData, guildObj.getIdLong());
         case STAGE:
@@ -626,7 +626,7 @@ public class EntityBuilder
         return createMember(guild, memberJson, null, null);
     }
 
-    public MemberImpl createMemberFromUnknownGuild(UnknownGuildImpl guild, DataObject memberJson)
+    public MemberImpl createMemberFromPartialGuild(PartialGuildImpl guild, DataObject memberJson)
     {
         User user = createUser(memberJson.getObject("user"));
         MemberImpl member = new MemberImpl(guild, user);
@@ -660,7 +660,7 @@ public class EntityBuilder
         if (member == null)
         {
             // Create a brand new member
-            member = createMemberFromUnknownGuild(guild, memberJson);
+            member = createMemberFromPartialGuild(guild, memberJson);
             Set<Role> roles = member.getRoleSet();
             for (int i = 0; i < roleArray.length(); i++)
             {
@@ -1161,7 +1161,7 @@ public class EntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = createTextChannelFromUnknownGuild(guildObj, json);
+                channel = createTextChannelFromPartialGuild(guildObj, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
@@ -1172,7 +1172,7 @@ public class EntityBuilder
         return channel;
     }
 
-    public TextChannelImpl createTextChannelFromUnknownGuild(UnknownGuildImpl guildObj, DataObject json)
+    public TextChannelImpl createTextChannelFromPartialGuild(PartialGuildImpl guildObj, DataObject json)
     {
         final long id = json.getLong("id");
         TextChannelImpl channel = new TextChannelImpl(id, guildObj);

@@ -19,12 +19,12 @@ package net.dv8tion.jda.api.entities;
 import javax.annotation.Nullable;
 
 //TODO document
-public interface IUnknownGuildHolder
+public interface IPartialGuildHolder
 {
     //TODO document
     boolean hasGuild();
 
     //TODO document
     @Nullable
-    UnknownGuild getUnknownGuild();
+    PartialGuild getPartialGuild();
 }

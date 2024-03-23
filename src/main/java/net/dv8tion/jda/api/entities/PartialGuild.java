@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Set;
 
 //TODO document
-public interface UnknownGuild extends ISnowflake
+public interface PartialGuild extends ISnowflake
 {
     /**
      * Returns the {@link net.dv8tion.jda.api.JDA JDA} instance of this Guild

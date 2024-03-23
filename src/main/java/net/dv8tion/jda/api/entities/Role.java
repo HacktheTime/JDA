@@ -39,7 +39,7 @@ import java.awt.*;
  * @see JDA#getRolesByName(String, boolean)
  * @see JDA#getRoles()
  */
-public interface Role extends IMentionable, IPermissionHolder, IUnknownGuildHolder, Comparable<Role>
+public interface Role extends IMentionable, IPermissionHolder, IPartialGuildHolder, Comparable<Role>
 {
     /** Used to keep consistency between color values used in the API */
     int DEFAULT_COLOR_RAW = 0x1FFFFFFF; // java.awt.Color fills the MSB with FF, we just use 1F to provide better consistency

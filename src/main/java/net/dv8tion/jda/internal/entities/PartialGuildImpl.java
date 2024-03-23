@@ -16,7 +16,7 @@
 
 package net.dv8tion.jda.internal.entities;
 
-import net.dv8tion.jda.api.entities.UnknownGuild;
+import net.dv8tion.jda.api.entities.PartialGuild;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.utils.EntityString;
 
@@ -24,13 +24,13 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Set;
 
-public class UnknownGuildImpl implements UnknownGuild
+public class PartialGuildImpl implements PartialGuild
 {
     protected final JDAImpl api;
     protected final long id;
     private Set<String> features;
 
-    public UnknownGuildImpl(JDAImpl api, long id)
+    public PartialGuildImpl(JDAImpl api, long id)
     {
         this.id = id;
         this.api = api;
@@ -56,7 +56,7 @@ public class UnknownGuildImpl implements UnknownGuild
         return features;
     }
 
-    public UnknownGuildImpl setFeatures(Set<String> features)
+    public PartialGuildImpl setFeatures(Set<String> features)
     {
         this.features = Collections.unmodifiableSet(features);
         return this;

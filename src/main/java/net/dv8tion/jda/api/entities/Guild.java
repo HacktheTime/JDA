@@ -91,7 +91,7 @@ import java.util.stream.Collectors;
  * @see JDA#getGuildsByName(String, boolean)
  * @see JDA#getGuilds()
  */
-public interface Guild extends IGuildChannelContainer<GuildChannel>, UnknownGuild
+public interface Guild extends IGuildChannelContainer<GuildChannel>, PartialGuild
 {
     /** Template for {@link #getIconUrl()}. */
     String ICON_URL = "https://cdn.discordapp.com/icons/%s/%s.%s";
