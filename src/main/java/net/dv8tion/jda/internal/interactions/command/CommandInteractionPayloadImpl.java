@@ -18,9 +18,7 @@ package net.dv8tion.jda.internal.interactions.command;
 
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
@@ -30,8 +28,6 @@ import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.EntityBuilder;
-import net.dv8tion.jda.internal.entities.GuildImpl;
-import net.dv8tion.jda.internal.entities.MemberImpl;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.dv8tion.jda.internal.interactions.InteractionImpl;
 
@@ -39,7 +35,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandInteractionPayloadImpl extends InteractionImpl implements CommandInteractionPayload
 {
@@ -113,35 +108,40 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
 
         if (this.guild != null)
         {
-            GuildImpl guild = (GuildImpl) this.guild;
+//            GuildImpl guild = (GuildImpl) this.guild;
             resolveJson.optObject("members").ifPresent(members ->
             {
-                DataObject users = resolveJson.getObject("users");
-                members.keys().forEach(memberId ->
-                {
-                    DataObject memberJson = members.getObject(memberId);
-                    memberJson.put("user", users.getObject(memberId)); // Add user json as well for parsing
-                    MemberImpl optionMember = entityBuilder.createMember(guild, memberJson);
-                    entityBuilder.updateMemberCache(optionMember);
-                    resolved.put(optionMember.getIdLong(), optionMember); // This basically upgrades user to member
-                });
+                throw new UnsupportedOperationException("Implement branches for unknown guilds");
+                //TODO dont forget to set raw permissions with the one provided by discord
+//                DataObject users = resolveJson.getObject("users");
+//                members.keys().forEach(memberId ->
+//                {
+//                    DataObject memberJson = members.getObject(memberId);
+//                    memberJson.put("user", users.getObject(memberId)); // Add user json as well for parsing
+//                    MemberImpl optionMember = entityBuilder.createMember(guild, memberJson);
+//                    entityBuilder.updateMemberCache(optionMember);
+//                    resolved.put(optionMember.getIdLong(), optionMember); // This basically upgrades user to member
+//                });
             });
             resolveJson.optObject("roles").ifPresent(roles ->
-                roles.keys()
-                    .stream()
-                    .map(this.guild::getRoleById)
-                    .filter(Objects::nonNull)
-                    .forEach(role -> resolved.put(role.getIdLong(), role))
+                    { throw new UnsupportedOperationException("Implement creating from json"); }
+                    //TODO dont forget to set raw permissions with the one provided by discord
+//                roles.keys()
+//                    .stream()
+//                    .map(this.guild::getRoleById)
+//                    .filter(Objects::nonNull)
+//                    .forEach(role -> resolved.put(role.getIdLong(), role))
             );
             resolveJson.optObject("channels").ifPresent(channels ->
-                channels.keys().forEach(id -> {
-                    ISnowflake channelObj = jda.getGuildChannelById(id);
-                    DataObject channelJson = channels.getObject(id);
-                    if (channelObj != null)
-                        resolved.put(channelObj.getIdLong(), channelObj);
-                    else if (ChannelType.fromId(channelJson.getInt("type")).isThread())
-                        resolved.put(Long.parseUnsignedLong(id), api.getEntityBuilder().createThreadChannel(guild, channelJson, guild.getIdLong(), false));
-                })
+                    { throw new UnsupportedOperationException("Implement creating from json"); }
+//                channels.keys().forEach(id -> {
+//                    ISnowflake channelObj = jda.getGuildChannelById(id);
+//                    DataObject channelJson = channels.getObject(id);
+//                    if (channelObj != null)
+//                        resolved.put(channelObj.getIdLong(), channelObj);
+//                    else if (ChannelType.fromId(channelJson.getInt("type")).isThread())
+//                        resolved.put(Long.parseUnsignedLong(id), api.getEntityBuilder().createThreadChannel(guild, channelJson, guild.getIdLong(), false));
+//                })
             );
         }
     }

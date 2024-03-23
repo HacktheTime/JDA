@@ -95,6 +95,25 @@ public class InteractionImpl implements Interaction
                 throw new IllegalStateException("Failed to create channel instance for interaction! Channel Type: " + channelJson.getInt("type"));
             this.channel = channel;
         }
+        else if (guild instanceof UnknownGuildImpl)
+        {
+            member = jda.getEntityBuilder().createMemberFromUnknownGuild((UnknownGuildImpl) guild, data.getObject("member"))
+                    .setInteractionPermissions(data.getObject("member").getLong("permissions"));
+            user = member.getUser();
+
+            channelJson.put("permission_overwrites", DataArray.fromCollection(Collections.singleton(
+                    DataObject.empty()
+                            .put("id", getUser().getIdLong())
+                            .put("type", 1)
+                            //TODO something something implicit permissions?
+                            .put("allow", channelJson.getLong("permissions"))
+                            .put("deny", 0)
+            )));
+
+            channel = jda.getEntityBuilder().createGuildChannelFromUnknownGuild((UnknownGuildImpl) guild, channelJson);
+            if (channel == null)
+                throw new IllegalStateException("Failed to create channel instance for interaction! Channel Type: " + channelJson.getInt("type"));
+        }
         else
         {
             member = null;

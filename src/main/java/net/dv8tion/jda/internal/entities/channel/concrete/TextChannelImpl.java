@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.DefaultGuildChannelUnion;
 import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
-import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.UnknownGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractStandardGuildMessageChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.ISlowmodeChannelMixin;
 import net.dv8tion.jda.internal.managers.channel.concrete.TextChannelManagerImpl;
@@ -43,7 +43,7 @@ public class TextChannelImpl extends AbstractStandardGuildMessageChannelImpl<Tex
 {
     private int slowmode;
 
-    public TextChannelImpl(long id, GuildImpl guild)
+    public TextChannelImpl(long id, UnknownGuildImpl guild)
     {
         super(id, guild);
     }

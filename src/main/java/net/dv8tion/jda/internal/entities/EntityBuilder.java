@@ -430,6 +430,31 @@ public class EntityBuilder
         }
     }
 
+    public GuildChannel createGuildChannelFromUnknownGuild(UnknownGuildImpl guildObj, DataObject channelData)
+    {
+        final ChannelType channelType = ChannelType.fromId(channelData.getInt("type"));
+        switch (channelType)
+        {
+        case TEXT:
+            return createTextChannelFromUnknownGuild(guildObj, channelData);
+        case NEWS:
+//            return createNewsChannel(guildObj, channelData, guildObj.getIdLong());
+        case STAGE:
+//            return createStageChannel(guildObj, channelData, guildObj.getIdLong());
+        case VOICE:
+//            return createVoiceChannel(guildObj, channelData, guildObj.getIdLong());
+        case CATEGORY:
+//            return createCategory(guildObj, channelData, guildObj.getIdLong());
+        case FORUM:
+//            return createForumChannel(guildObj, channelData, guildObj.getIdLong());
+        case MEDIA:
+//            return createMediaChannel(guildObj, channelData, guildObj.getIdLong());
+        default:
+            LOG.debug("Cannot create channel for type " + channelData.getInt("type"));
+            return null;
+        }
+    }
+
     public UserImpl createUser(DataObject user)
     {
         boolean newUser = false;
@@ -601,6 +626,31 @@ public class EntityBuilder
         return createMember(guild, memberJson, null, null);
     }
 
+    public MemberImpl createMemberFromUnknownGuild(UnknownGuildImpl guild, DataObject memberJson)
+    {
+        User user = createUser(memberJson.getObject("user"));
+        MemberImpl member = new MemberImpl(guild, user);
+        member.setNickname(memberJson.getString("nick", null));
+        member.setAvatarId(memberJson.getString("avatar", null));
+        if (!memberJson.isNull("flags"))
+            member.setFlags(memberJson.getInt("flags"));
+
+        long boostTimestamp = memberJson.isNull("premium_since")
+                ? 0
+                : Helpers.toTimestamp(memberJson.getString("premium_since"));
+        member.setBoostDate(boostTimestamp);
+
+        long timeOutTimestamp = memberJson.isNull("communication_disabled_until")
+                ? 0
+                : Helpers.toTimestamp(memberJson.getString("communication_disabled_until"));
+        member.setTimeOutEnd(timeOutTimestamp);
+
+        if (!memberJson.isNull("pending"))
+            member.setPending(memberJson.getBoolean("pending"));
+
+        return member;
+    }
+
     public MemberImpl createMember(GuildImpl guild, DataObject memberJson, DataObject voiceStateJson, DataObject presence)
     {
         boolean playbackCache = false;
@@ -610,24 +660,7 @@ public class EntityBuilder
         if (member == null)
         {
             // Create a brand new member
-            member = new MemberImpl(guild, user);
-            member.setNickname(memberJson.getString("nick", null));
-            member.setAvatarId(memberJson.getString("avatar", null));
-            if (!memberJson.isNull("flags"))
-                member.setFlags(memberJson.getInt("flags"));
-
-            long boostTimestamp = memberJson.isNull("premium_since")
-                ? 0
-                : Helpers.toTimestamp(memberJson.getString("premium_since"));
-            member.setBoostDate(boostTimestamp);
-
-            long timeOutTimestamp = memberJson.isNull("communication_disabled_until")
-                ? 0
-                : Helpers.toTimestamp(memberJson.getString("communication_disabled_until"));
-            member.setTimeOutEnd(timeOutTimestamp);
-
-            if (!memberJson.isNull("pending"))
-                member.setPending(memberJson.getBoolean("pending"));
+            member = createMemberFromUnknownGuild(guild, memberJson);
             Set<Role> roles = member.getRoleSet();
             for (int i = 0; i < roleArray.length(); i++)
             {
@@ -1128,25 +1161,33 @@ public class EntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = new TextChannelImpl(id, guildObj);
+                channel = createTextChannelFromUnknownGuild(guildObj, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
-        channel
-            .setParentCategory(json.getLong("parent_id", 0))
-            .setLatestMessageIdLong(json.getLong("last_message_id", 0))
-            .setName(json.getString("name"))
-            .setTopic(json.getString("topic", null))
-            .setPosition(json.getInt("position"))
-            .setNSFW(json.getBoolean("nsfw"))
-            .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
-            .setSlowmode(json.getInt("rate_limit_per_user", 0));
-
-        createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public TextChannelImpl createTextChannelFromUnknownGuild(UnknownGuildImpl guildObj, DataObject json)
+    {
+        final long id = json.getLong("id");
+        TextChannelImpl channel = new TextChannelImpl(id, guildObj);
+
+        channel
+                .setParentCategory(json.getLong("parent_id", 0))
+                .setLatestMessageIdLong(json.getLong("last_message_id", 0))
+                .setName(json.getString("name"))
+                .setTopic(json.getString("topic", null))
+                .setPosition(json.getInt("position"))
+                .setNSFW(json.getBoolean("nsfw"))
+                .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
+                .setSlowmode(json.getInt("rate_limit_per_user", 0));
+
+        createOverridesPass(channel, json.getArray("permission_overwrites"));
         return channel;
     }
 
