@@ -91,7 +91,7 @@ public class MessageMentionsImpl extends AbstractMentions
         {
             DataObject mention = userMentionMap.get(iter.next());
             if (mention.getBoolean("is_member"))
-                members.add(0, entityBuilder.createMember(guild, mention));
+                members.add(0, entityBuilder.createBestMember(guild, mention));
         }
 
         // Update member cache
@@ -148,16 +148,20 @@ public class MessageMentionsImpl extends AbstractMentions
     @Override
     protected Member matchMember(Matcher matcher)
     {
+        // Partial guilds don't have channels
         long id = Long.parseUnsignedLong(matcher.group(1));
         DataObject member = userMentionMap.get(id);
         return member != null && member.getBoolean("is_member")
-                ? jda.getEntityBuilder().createMember(guild, member)
+                ? jda.getEntityBuilder().createBestMember(guild, member)
                 : null;
     }
 
     @Override
     protected GuildChannel matchChannel(Matcher matcher)
     {
+        // Partial guilds don't have channels
+        if (!(guild instanceof Guild))
+            return null;
         long channelId = MiscUtil.parseSnowflake(matcher.group(1));
         return getJDA().getGuildChannelById(channelId);
     }
@@ -165,13 +169,13 @@ public class MessageMentionsImpl extends AbstractMentions
     @Override
     protected Role matchRole(Matcher matcher)
     {
+        // Partial guilds don't have roles
+        if (!(guild instanceof Guild))
+            return null;
         long roleId = MiscUtil.parseSnowflake(matcher.group(1));
         if (!roleMentionMap.contains(roleId))
             return null;
-        if (guild != null)
-            return guild.getRoleById(roleId);
-        else
-            return getJDA().getRoleById(roleId);
+        return ((Guild) guild).getRoleById(roleId);
     }
 
     @Override

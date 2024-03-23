@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.interactions.commands.ICommandReference;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandReference;
 import net.dv8tion.jda.api.utils.MiscUtil;
 import net.dv8tion.jda.internal.JDAImpl;
-import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.utils.Checks;
 import net.dv8tion.jda.internal.utils.Helpers;
 import org.apache.commons.collections4.Bag;
@@ -45,7 +45,7 @@ public abstract class AbstractMentions implements Mentions
 {
     protected final String content;
     protected final JDAImpl jda;
-    protected final GuildImpl guild;
+    protected final PartialGuildImpl guild;
     protected final boolean mentionsEveryone;
 
     protected List<User> mentionedUsers;
@@ -55,7 +55,7 @@ public abstract class AbstractMentions implements Mentions
     protected List<CustomEmoji> mentionedEmojis;
     protected List<SlashCommandReference> mentionedSlashCommands;
 
-    public AbstractMentions(String content, JDAImpl jda, GuildImpl guild, boolean mentionsEveryone)
+    public AbstractMentions(String content, JDAImpl jda, PartialGuildImpl guild, boolean mentionsEveryone)
     {
         this.content = content;
         this.jda = jda;
@@ -368,8 +368,8 @@ public abstract class AbstractMentions implements Mentions
         Member member = null;
         if (mentionable instanceof Member)
             member = (Member) mentionable;
-        else if (guild != null && mentionable instanceof User)
-            member = guild.getMember((User) mentionable);
+        else if (guild instanceof Guild && mentionable instanceof User)
+            member = ((Guild) guild).getMember((User) mentionable);
         return member != null && CollectionUtils.containsAny(getRoles(), member.getRoles());
     }
 

@@ -32,7 +32,7 @@ public class InteractionMentions extends AbstractMentions
 {
     protected final TLongObjectMap<Object> resolved;
 
-    public InteractionMentions(String content, TLongObjectMap<Object> resolved, JDAImpl jda, GuildImpl guild)
+    public InteractionMentions(String content, TLongObjectMap<Object> resolved, JDAImpl jda, PartialGuildImpl guild)
     {
         super(content, jda, guild, false);
         this.resolved = resolved;
