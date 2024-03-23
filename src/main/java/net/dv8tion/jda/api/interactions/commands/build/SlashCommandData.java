@@ -618,6 +618,8 @@ public interface SlashCommandData extends CommandData
 
         CommandDataImpl data = new CommandDataImpl(command.getName(), command.getDescription());
         data.setGuildOnly(command.isGuildOnly());
+        data.setContexts(command.getContexts());
+        data.setIntegrationTypes(command.getIntegrationTypes());
         data.setNSFW(command.isNSFW());
         data.setDefaultPermissions(command.getDefaultPermissions());
         //Command localizations are unmodifiable, make a copy

@@ -282,6 +282,8 @@ public interface CommandData extends SerializableData
             final CommandDataImpl data = new CommandDataImpl(command.getType(), command.getName());
             return data.setDefaultPermissions(command.getDefaultPermissions())
                     .setGuildOnly(command.isGuildOnly())
+                    .setContexts(command.getContexts())
+                    .setIntegrationTypes(command.getIntegrationTypes())
                     .setNSFW(command.isNSFW())
                     .setNameLocalizations(command.getNameLocalizations().toMap())
                     .setDescriptionLocalizations(command.getDescriptionLocalizations().toMap());
