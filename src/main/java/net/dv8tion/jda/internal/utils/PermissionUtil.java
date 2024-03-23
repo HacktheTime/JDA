@@ -614,6 +614,12 @@ public class PermissionUtil
 
     private static void getExplicitOverrides(GuildChannel channel, Member member, AtomicLong allow, AtomicLong deny)
     {
+        if (!member.hasGuild())
+        {
+            allow.set(member.getEffectivePermissionsRaw());
+            return;
+        }
+
         IPermissionContainer permsChannel = channel.getPermissionContainer();
         PermissionOverride override = permsChannel.getPermissionOverride(member.getGuild().getPublicRole());
         long allowRaw = 0;

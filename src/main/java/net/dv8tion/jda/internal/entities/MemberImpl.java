@@ -57,6 +57,9 @@ public class MemberImpl implements Member
     private boolean pending = false;
     private int flags;
 
+    // Permissions calculated by Discord
+    private long interactionPermissions;
+
     public MemberImpl(UnknownGuildImpl guild, User user)
     {
         this.api = (JDAImpl) user.getJDA();
@@ -245,6 +248,14 @@ public class MemberImpl implements Member
     public int getFlagsRaw()
     {
         return flags;
+    }
+
+    @Override
+    public long getEffectivePermissionsRaw()
+    {
+        if (hasGuild())
+            return PermissionUtil.getEffectivePermission(this);
+        return interactionPermissions;
     }
 
     @Nonnull
@@ -455,6 +466,12 @@ public class MemberImpl implements Member
     public MemberImpl setFlags(int flags)
     {
         this.flags = flags;
+        return this;
+    }
+
+    public MemberImpl setInteractionPermissions(long interactionPermissions)
+    {
+        this.interactionPermissions = interactionPermissions;
         return this;
     }
 
