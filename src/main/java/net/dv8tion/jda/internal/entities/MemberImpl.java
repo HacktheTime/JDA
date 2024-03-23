@@ -49,7 +49,7 @@ public class MemberImpl implements Member
     private final Set<Role> roles = ConcurrentHashMap.newKeySet();
     private final GuildVoiceState voiceState;
 
-    private GuildImpl guild;
+    private UnknownGuildImpl guild;
     private User user;
     private String nickname;
     private String avatarId;
@@ -57,19 +57,19 @@ public class MemberImpl implements Member
     private boolean pending = false;
     private int flags;
 
-    public MemberImpl(GuildImpl guild, User user)
+    public MemberImpl(UnknownGuildImpl guild, User user)
     {
         this.api = (JDAImpl) user.getJDA();
         this.guild = guild;
         this.user = user;
         this.joinDate = 0;
         boolean cacheState = api.isCacheFlagSet(CacheFlag.VOICE_STATE) || user.equals(api.getSelfUser());
-        this.voiceState = cacheState ? new GuildVoiceStateImpl(this) : null;
+        this.voiceState = hasGuild() && cacheState ? new GuildVoiceStateImpl(this) : null;
     }
 
     public MemberPresenceImpl getPresence()
     {
-        CacheView.SimpleCacheView<MemberPresenceImpl> presences = guild.getPresenceView();
+        CacheView.SimpleCacheView<MemberPresenceImpl> presences = getGuild().getPresenceView();
         return presences == null ? null : presences.get(getIdLong());
     }
 
@@ -84,9 +84,24 @@ public class MemberImpl implements Member
         return user;
     }
 
+    @Override
+    public boolean hasGuild()
+    {
+        return guild instanceof GuildImpl;
+    }
+
     @Nonnull
     @Override
     public GuildImpl getGuild()
+    {
+        if (!hasGuild())
+            throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
+        return (GuildImpl) getUnknownGuild();
+    }
+
+    @Nonnull
+    @Override
+    public UnknownGuild getUnknownGuild()
     {
         GuildImpl realGuild = (GuildImpl) api.getGuildById(guild.getIdLong());
         if (realGuild != null)
@@ -107,7 +122,7 @@ public class MemberImpl implements Member
     {
         if (hasTimeJoined())
             return Helpers.toOffset(joinDate);
-        return getGuild().getTimeCreated();
+        return getUnknownGuild().getTimeCreated();
     }
 
     @Override
@@ -483,7 +498,7 @@ public class MemberImpl implements Member
         return new EntityString(this)
                 .setName(getEffectiveName())
                 .addMetadata("user", getUser())
-                .addMetadata("guild", getGuild())
+                .addMetadata("guild", getUnknownGuild())
                 .toString();
     }
 }

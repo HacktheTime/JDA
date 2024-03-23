@@ -18,6 +18,8 @@ package net.dv8tion.jda.api.entities.channel.middleman;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.IUnknownGuildHolder;
+import net.dv8tion.jda.api.entities.UnknownGuild;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
@@ -37,7 +39,7 @@ import javax.annotation.Nonnull;
  * @see JDA#getGuildChannelById(long)
  * @see JDA#getGuildChannelById(ChannelType, long)
  */
-public interface GuildChannel extends Channel, Comparable<GuildChannel>
+public interface GuildChannel extends Channel, IUnknownGuildHolder, Comparable<GuildChannel>
 {
     /** Template for {@link #getJumpUrl()}.*/
     String JUMP_URL = "https://discord.com/channels/%s/%s";
@@ -47,6 +49,7 @@ public interface GuildChannel extends Channel, Comparable<GuildChannel>
      *
      * @return Never-null {@link net.dv8tion.jda.api.entities.Guild Guild} that this GuildChannel is part of.
      */
+    //TODO documentation
     @Nonnull
     Guild getGuild();
 

@@ -19,10 +19,7 @@ package net.dv8tion.jda.internal.entities;
 import gnu.trove.map.TLongObjectMap;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.PermissionOverride;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.RoleIcon;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
@@ -275,11 +272,26 @@ public class RoleImpl implements Role
         return PermissionUtil.canInteract(this, role);
     }
 
+    @Override
+    public boolean hasGuild()
+    {
+        return guild instanceof GuildImpl;
+    }
+
     @Nonnull
     @Override
     public Guild getGuild()
     {
-        Guild realGuild = api.getGuildById(guild.getIdLong());
+        if (!hasGuild())
+            throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
+        return (Guild) getUnknownGuild();
+    }
+
+    @Nonnull
+    @Override
+    public UnknownGuild getUnknownGuild()
+    {
+        GuildImpl realGuild = (GuildImpl) api.getGuildById(guild.getIdLong());
         if (realGuild != null)
             guild = realGuild;
         return guild;

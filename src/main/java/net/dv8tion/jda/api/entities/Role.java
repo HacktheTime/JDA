@@ -39,7 +39,7 @@ import java.awt.*;
  * @see JDA#getRolesByName(String, boolean)
  * @see JDA#getRoles()
  */
-public interface Role extends IMentionable, IPermissionHolder, Comparable<Role>
+public interface Role extends IMentionable, IPermissionHolder, IUnknownGuildHolder, Comparable<Role>
 {
     /** Used to keep consistency between color values used in the API */
     int DEFAULT_COLOR_RAW = 0x1FFFFFFF; // java.awt.Color fills the MSB with FF, we just use 1F to provide better consistency
@@ -154,6 +154,7 @@ public interface Role extends IMentionable, IPermissionHolder, Comparable<Role>
      *
      * @return the Guild containing this Role
      */
+    //TODO documentation
     @Nonnull
     Guild getGuild();
 

@@ -96,11 +96,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class GuildImpl implements Guild
+public class GuildImpl extends UnknownGuildImpl implements Guild
 {
-    private final long id;
-    private final JDAImpl api;
-
     private final SortedSnowflakeCacheViewImpl<ScheduledEvent> scheduledEventCache = new SortedSnowflakeCacheViewImpl<>(ScheduledEvent.class, ScheduledEvent::getName, Comparator.naturalOrder());
     private final SortedChannelCacheViewImpl<GuildChannel> channelCache = new SortedChannelCacheViewImpl<>(GuildChannel.class);
     private final SortedSnowflakeCacheViewImpl<Role> roleCache = new SortedSnowflakeCacheViewImpl<>(Role.class, Role::getName, Comparator.reverseOrder());
@@ -119,7 +116,6 @@ public class GuildImpl implements Guild
     private int maxPresences, maxMembers;
     private int boostCount;
     private long ownerId;
-    private Set<String> features;
     private VoiceChannel afkChannel;
     private TextChannel systemChannel;
     private TextChannel rulesChannel;
@@ -138,8 +134,7 @@ public class GuildImpl implements Guild
 
     public GuildImpl(JDAImpl api, long id)
     {
-        this.id = id;
-        this.api = api;
+        super(api, id);
         if (api.getCacheFlags().stream().anyMatch(CacheFlag::isPresence))
             memberPresences = new CacheView.SimpleCacheView<>(MemberPresenceImpl.class, null);
         else
@@ -461,13 +456,6 @@ public class GuildImpl implements Guild
     public String getIconId()
     {
         return iconId;
-    }
-
-    @Nonnull
-    @Override
-    public Set<String> getFeatures()
-    {
-        return features;
     }
 
     @Override
@@ -1137,13 +1125,6 @@ public class GuildImpl implements Guild
 
     @Nonnull
     @Override
-    public JDAImpl getJDA()
-    {
-        return api;
-    }
-
-    @Nonnull
-    @Override
     public List<GuildVoiceState> getVoiceStates()
     {
         return getMembersView().stream()
@@ -1329,12 +1310,6 @@ public class GuildImpl implements Guild
 
             return Collections.unmodifiableList(list);
         });
-    }
-
-    @Override
-    public long getIdLong()
-    {
-        return id;
     }
 
     @Nonnull
@@ -2086,10 +2061,10 @@ public class GuildImpl implements Guild
         return this;
     }
 
+    @Override
     public GuildImpl setFeatures(Set<String> features)
     {
-        this.features = Collections.unmodifiableSet(features);
-        return this;
+        return (GuildImpl) super.setFeatures(features);
     }
 
     public GuildImpl setSplashId(String splashId)
@@ -2285,25 +2260,6 @@ public class GuildImpl implements Guild
     public void onMemberRemove()
     {
         memberCount--;
-    }
-
-    // -- Object overrides --
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (o == this)
-            return true;
-        if (!(o instanceof GuildImpl))
-            return false;
-        GuildImpl oGuild = (GuildImpl) o;
-        return this.id == oGuild.id;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Long.hashCode(id);
     }
 
     @Override

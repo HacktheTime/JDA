@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.UnknownGuild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -29,10 +30,12 @@ import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.IntegrationOwners;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
+import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.MemberImpl;
+import net.dv8tion.jda.internal.entities.UnknownGuildImpl;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.dv8tion.jda.internal.entities.channel.concrete.PrivateChannelImpl;
 
@@ -47,7 +50,7 @@ public class InteractionImpl implements Interaction
     protected final long channelId;
     protected final int type;
     protected final String token;
-    protected final Guild guild;
+    protected final UnknownGuild guild;
     protected final Member member;
     protected final User user;
     protected final Channel channel;
@@ -67,7 +70,7 @@ public class InteractionImpl implements Interaction
         this.id = data.getUnsignedLong("id");
         this.token = data.getString("token");
         this.type = data.getInt("type");
-        this.guild = jda.getGuildById(data.getUnsignedLong("guild_id", 0L));
+        this.guild = getOrCreateUnknownGuild(data);
         this.channelId = data.getUnsignedLong("channel_id", 0L);
         this.userLocale = DiscordLocale.from(data.getString("locale", "en-US"));
         // Absent in guild-scoped commands
@@ -79,13 +82,13 @@ public class InteractionImpl implements Interaction
         this.integrationOwners = new IntegrationOwnersImpl(data.optObject("authorizing_integration_owners").orElseGet(DataObject::empty));
 
         DataObject channelJson = data.getObject("channel");
-        if (guild != null)
+        if (guild instanceof GuildImpl)
         {
             member = jda.getEntityBuilder().createMember((GuildImpl) guild, data.getObject("member"));
             jda.getEntityBuilder().updateMemberCache((MemberImpl) member);
             user = member.getUser();
 
-            GuildChannel channel = guild.getGuildChannelById(channelJson.getUnsignedLong("id"));
+            GuildChannel channel = ((Guild) guild).getGuildChannelById(channelJson.getUnsignedLong("id"));
             if (channel == null && ChannelType.fromId(channelJson.getInt("type")).isThread())
                 channel = api.getEntityBuilder().createThreadChannel((GuildImpl) guild, channelJson, guild.getIdLong(), false);
             if (channel == null)
@@ -119,6 +122,19 @@ public class InteractionImpl implements Interaction
             }
             this.user = user;
         }
+    }
+
+    private UnknownGuild getOrCreateUnknownGuild(DataObject data)
+    {
+        UnknownGuild unknownGuild = null;
+        if (data.hasKey("guild_id"))
+        {
+            final long guildId = data.getUnsignedLong("guild_id");
+            unknownGuild = api.getGuildById(guildId);
+            if (unknownGuild == null)
+                unknownGuild = new UnknownGuildImpl(api, guildId);
+        }
+        return unknownGuild;
     }
 
     // Used to allow interaction hook to send messages after acknowledgements
@@ -158,9 +174,24 @@ public class InteractionImpl implements Interaction
         return token;
     }
 
+    @Override
+    public boolean hasGuild()
+    {
+        return guild instanceof Guild;
+    }
+
     @Nullable
     @Override
     public Guild getGuild()
+    {
+        if (hasGuild())
+            return (Guild) guild;
+        throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
+    }
+
+    @Nullable
+    @Override
+    public UnknownGuild getUnknownGuild()
     {
         return guild;
     }

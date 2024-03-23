@@ -16,8 +16,10 @@
 
 package net.dv8tion.jda.internal.entities.channel.middleman;
 
+import net.dv8tion.jda.api.entities.UnknownGuild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.UnknownGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.AbstractChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.GuildChannelMixin;
 import net.dv8tion.jda.internal.utils.ChannelUtil;
@@ -34,9 +36,24 @@ public abstract class AbstractGuildChannelImpl<T extends AbstractGuildChannelImp
         this.guild = guild;
     }
 
+    @Override
+    public boolean hasGuild()
+    {
+        return guild instanceof GuildImpl;
+    }
+
     @Nonnull
     @Override
     public GuildImpl getGuild()
+    {
+        if (hasGuild())
+            return (GuildImpl) guild;
+        throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
+    }
+
+    @Nonnull
+    @Override
+    public UnknownGuild getUnknownGuild()
     {
         return guild;
     }

@@ -91,7 +91,7 @@ import java.util.stream.Collectors;
  * @see JDA#getGuildsByName(String, boolean)
  * @see JDA#getGuilds()
  */
-public interface Guild extends IGuildChannelContainer<GuildChannel>, ISnowflake
+public interface Guild extends IGuildChannelContainer<GuildChannel>, UnknownGuild
 {
     /** Template for {@link #getIconUrl()}. */
     String ICON_URL = "https://cdn.discordapp.com/icons/%s/%s.%s";
@@ -680,29 +680,6 @@ public interface Guild extends IGuildChannelContainer<GuildChannel>, ISnowflake
     {
         final String iconUrl = getIconUrl();
         return iconUrl == null ? null : new ImageProxy(iconUrl);
-    }
-
-    /**
-     * The Features of the {@link net.dv8tion.jda.api.entities.Guild Guild}.
-     *
-     * <p>Features can be updated using {@link GuildManager#setFeatures(Collection)}.
-     *
-     * @return Never-null, unmodifiable Set containing all of the Guild's features.
-     *
-     * @see <a target="_blank" href="https://discord.com/developers/docs/resources/guild#guild-object-guild-features">List of Features</a>
-     */
-    @Nonnull
-    Set<String> getFeatures();
-
-    /**
-     * Whether the invites for this guild are paused/disabled.
-     * <br>This is equivalent to {@code getFeatures().contains("INVITES_DISABLED")}.
-     *
-     * @return True, if invites are paused/disabled
-     */
-    default boolean isInvitesDisabled()
-    {
-        return getFeatures().contains("INVITES_DISABLED");
     }
 
     /**
@@ -2453,14 +2430,6 @@ public interface Guild extends IGuildChannelContainer<GuildChannel>, ISnowflake
      */
     @Nonnull
     Task<Void> cancelRequestToSpeak();
-
-    /**
-     * Returns the {@link net.dv8tion.jda.api.JDA JDA} instance of this Guild
-     *
-     * @return the corresponding JDA instance
-     */
-    @Nonnull
-    JDA getJDA();
 
     /**
      * Retrieves all {@link net.dv8tion.jda.api.entities.Invite Invites} for this guild.

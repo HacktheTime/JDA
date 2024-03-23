@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.UnknownGuild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.Event;
@@ -77,11 +78,24 @@ public class GenericInteractionCreateEvent extends Event implements Interaction
         return interaction.getTypeRaw();
     }
 
+    @Override
+    public boolean hasGuild()
+    {
+        return interaction.hasGuild();
+    }
+
     @Nullable
     @Override
     public Guild getGuild()
     {
         return interaction.getGuild();
+    }
+
+    @Nullable
+    @Override
+    public UnknownGuild getUnknownGuild()
+    {
+        return interaction.getUnknownGuild();
     }
 
     @Nullable

@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
-import net.dv8tion.jda.internal.entities.GuildImpl;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -275,8 +274,7 @@ public class PermissionUtil
         Checks.notNull(member, "Member");
         Checks.notNull(permissions, "Permissions");
 
-        GuildImpl guild = (GuildImpl) channel.getGuild();
-        checkGuild(guild, member.getGuild(), "Member");
+        checkGuild(channel.getUnknownGuild(), member.getUnknownGuild(), "Member");
 
         long effectivePerms = getEffectivePermission(channel, member);
         return isApplied(effectivePerms, Permission.getRaw(permissions));
@@ -303,6 +301,9 @@ public class PermissionUtil
     public static long getEffectivePermission(Member member)
     {
         Checks.notNull(member, "Member");
+
+        if (!member.hasGuild())
+            return member.getEffectivePermissionsRaw();
 
         if (member.isOwner())
             return Permission.ALL_PERMISSIONS;
@@ -344,7 +345,10 @@ public class PermissionUtil
         Checks.notNull(channel, "Channel");
         Checks.notNull(member, "Member");
 
-        Checks.check(channel.getGuild().equals(member.getGuild()), "Provided channel and provided member are not of the same guild!");
+        Checks.check(channel.getUnknownGuild().equals(member.getUnknownGuild()), "Provided channel and provided member are not of the same guild!");
+
+        if (!member.hasGuild())
+            return member.getEffectivePermissionsRaw();
 
         if (member.isOwner())
         {
@@ -407,8 +411,7 @@ public class PermissionUtil
         Checks.notNull(channel, "Channel");
         Checks.notNull(role, "Role");
 
-        Guild guild = channel.getGuild();
-        if (!guild.equals(role.getGuild()))
+        if (!channel.getUnknownGuild().equals(role.getUnknownGuild()))
             throw new IllegalArgumentException("Provided channel and role are not of the same guild!");
 
         long permissions = getExplicitPermission(channel, role);
@@ -441,6 +444,9 @@ public class PermissionUtil
     public static long getExplicitPermission(Member member)
     {
         Checks.notNull(member, "Member");
+
+        if (!member.hasGuild())
+            return member.getEffectivePermissionsRaw();
 
         final Guild guild = member.getGuild();
         long permission = guild.getPublicRole().getPermissionsRaw();
@@ -513,8 +519,7 @@ public class PermissionUtil
         Checks.notNull(channel, "Channel");
         Checks.notNull(member, "Member");
 
-        final Guild guild = member.getGuild();
-        checkGuild(channel.getGuild(), guild, "Member");
+        checkGuild(channel.getUnknownGuild(), member.getUnknownGuild(), "Member");
 
         long permission = includeRoles ? getExplicitPermission(member) : 0L;
 
@@ -584,10 +589,14 @@ public class PermissionUtil
     {
         Checks.notNull(channel, "Channel");
         Checks.notNull(role, "Role");
+
+        if (!role.hasGuild())
+            return role.getPermissionsRaw();
+
         IPermissionContainer permsChannel = channel.getPermissionContainer();
 
         final Guild guild = role.getGuild();
-        checkGuild(channel.getGuild(), guild, "Role");
+        checkGuild(channel.getUnknownGuild(), guild, "Role");
 
         long permission = includeRoles ? role.getPermissionsRaw() | guild.getPublicRole().getPermissionsRaw() : 0;
         PermissionOverride override = permsChannel.getPermissionOverride(guild.getPublicRole());
@@ -663,7 +672,7 @@ public class PermissionUtil
         return permission;
     }
 
-    private static void checkGuild(Guild o1, Guild o2, String name)
+    private static void checkGuild(UnknownGuild o1, UnknownGuild o2, String name)
     {
         Checks.check(o1.equals(o2),
             "Specified %s is not in the same guild! (%s / %s)", name, o1, o2);

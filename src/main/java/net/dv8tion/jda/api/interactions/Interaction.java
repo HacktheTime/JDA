@@ -18,10 +18,7 @@ package net.dv8tion.jda.api.interactions;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -62,7 +59,7 @@ import java.util.Set;
  * <p><b>You can only acknowledge an interaction once!</b> Any additional calls to reply/deferReply will result in exceptions.
  * You can use {@link #isAcknowledged()} to check whether the interaction has been acknowledged already.
  */
-public interface Interaction extends ISnowflake
+public interface Interaction extends ISnowflake, IUnknownGuildHolder
 {
     /**
      * The raw interaction type.
@@ -97,18 +94,19 @@ public interface Interaction extends ISnowflake
      *
      * @return The {@link Guild} or null
      */
+    //TODO documentation
     @Nullable
     Guild getGuild();
 
     /**
      * Whether this interaction came from a {@link Guild}.
-     * <br>This is identical to {@code getGuild() != null}
+     * <br>This is identical to {@code getUnknownGuild() != null}
      *
      * @return True, if this interaction happened in a guild
      */
     default boolean isFromGuild()
     {
-        return getGuild() != null;
+        return getUnknownGuild() != null;
     }
 
     /**

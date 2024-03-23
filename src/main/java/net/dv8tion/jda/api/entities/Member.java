@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.requests.Route;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.utils.ImageProxy;
 import net.dv8tion.jda.api.utils.data.DataObject;
+import net.dv8tion.jda.internal.entities.UnknownGuildImpl;
 import net.dv8tion.jda.internal.requests.restaction.AuditableRestActionImpl;
 import net.dv8tion.jda.internal.utils.Checks;
 import net.dv8tion.jda.internal.utils.Helpers;
@@ -64,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  * @see   Guild#getMembersWithRoles(Role...)
  * @see   Guild#getMembers()
  */
-public interface Member extends IMentionable, IPermissionHolder, UserSnowflake
+public interface Member extends IMentionable, IPermissionHolder, IUnknownGuildHolder, UserSnowflake
 {
     /** Template for {@link #getAvatarUrl()}. */
     String AVATAR_URL = "https://cdn.discordapp.com/guilds/%s/users/%s/avatars/%s.%s";
@@ -84,6 +85,7 @@ public interface Member extends IMentionable, IPermissionHolder, UserSnowflake
      *
      * @return {@link net.dv8tion.jda.api.entities.Guild Guild}
      */
+    //TODO documentation
     @Nonnull
     Guild getGuild();
 
@@ -94,6 +96,9 @@ public interface Member extends IMentionable, IPermissionHolder, UserSnowflake
      */
     @Nonnull
     JDA getJDA();
+
+    //TODO document
+    long getEffectivePermissionsRaw();
 
     /**
      * The {@link java.time.OffsetDateTime Time} this Member joined the Guild.
