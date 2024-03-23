@@ -656,6 +656,12 @@ public class EntityBuilder
         if (!memberJson.isNull("pending"))
             member.setPending(memberJson.getBoolean("pending"));
 
+        // Load joined_at if necessary
+        if (!memberJson.isNull("joined_at") && !member.hasTimeJoined())
+        {
+            member.setJoinDate(Helpers.toTimestamp(memberJson.getString("joined_at")));
+        }
+
         // Absent outside interactions and in message mentions
         member.setInteractionPermissions(memberJson.getLong("permissions", 0L));
 
@@ -693,12 +699,6 @@ public class EntityBuilder
                     roles.add(role);
             }
             updateMember(guild, member, memberJson, roles);
-        }
-
-        // Load joined_at if necessary
-        if (!memberJson.isNull("joined_at") && !member.hasTimeJoined())
-        {
-            member.setJoinDate(Helpers.toTimestamp(memberJson.getString("joined_at")));
         }
 
         // Load voice state and presence if necessary
