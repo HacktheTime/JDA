@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.EntityBuilder;
+import net.dv8tion.jda.internal.entities.MemberImpl;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.dv8tion.jda.internal.interactions.InteractionImpl;
 
@@ -111,17 +112,16 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
 //            GuildImpl guild = (GuildImpl) this.guild;
             resolveJson.optObject("members").ifPresent(members ->
             {
-                throw new UnsupportedOperationException("Implement branches for unknown guilds");
-                //TODO dont forget to set raw permissions with the one provided by discord
-//                DataObject users = resolveJson.getObject("users");
-//                members.keys().forEach(memberId ->
-//                {
-//                    DataObject memberJson = members.getObject(memberId);
-//                    memberJson.put("user", users.getObject(memberId)); // Add user json as well for parsing
-//                    MemberImpl optionMember = entityBuilder.createMember(guild, memberJson);
-//                    entityBuilder.updateMemberCache(optionMember);
-//                    resolved.put(optionMember.getIdLong(), optionMember); // This basically upgrades user to member
-//                });
+                DataObject users = resolveJson.getObject("users");
+                members.keys().forEach(memberId ->
+                {
+                    DataObject memberJson = members.getObject(memberId);
+                    memberJson.put("user", users.getObject(memberId)); // Add user json as well for parsing
+                    MemberImpl optionMember = entityBuilder.createBestMember(guild, memberJson);
+                    if (hasGuild())
+                        entityBuilder.updateMemberCache(optionMember);
+                    resolved.put(optionMember.getIdLong(), optionMember); // This basically upgrades user to member
+                });
             });
             resolveJson.optObject("roles").ifPresent(roles ->
                     { throw new UnsupportedOperationException("Implement creating from json"); }
