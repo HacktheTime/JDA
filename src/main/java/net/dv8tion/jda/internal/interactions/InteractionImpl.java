@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.PartialGuild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -50,7 +49,7 @@ public class InteractionImpl implements Interaction
     protected final long channelId;
     protected final int type;
     protected final String token;
-    protected final PartialGuild guild;
+    protected final PartialGuildImpl guild;
     protected final Member member;
     protected final User user;
     protected final Channel channel;
@@ -95,10 +94,9 @@ public class InteractionImpl implements Interaction
                 throw new IllegalStateException("Failed to create channel instance for interaction! Channel Type: " + channelJson.getInt("type"));
             this.channel = channel;
         }
-        else if (guild instanceof PartialGuildImpl)
+        else if (guild != null)
         {
-            member = jda.getEntityBuilder().createMemberFromPartialGuild((PartialGuildImpl) guild, data.getObject("member"))
-                    .setInteractionPermissions(data.getObject("member").getLong("permissions"));
+            member = jda.getEntityBuilder().createMemberFromPartialGuild(guild, data.getObject("member"));
             user = member.getUser();
 
             channelJson.put("permission_overwrites", DataArray.fromCollection(Collections.singleton(
@@ -110,7 +108,7 @@ public class InteractionImpl implements Interaction
                             .put("deny", 0)
             )));
 
-            channel = jda.getEntityBuilder().createGuildChannelFromPartialGuild((PartialGuildImpl) guild, channelJson);
+            channel = jda.getEntityBuilder().createGuildChannelFromPartialGuild(guild, channelJson);
             if (channel == null)
                 throw new IllegalStateException("Failed to create channel instance for interaction! Channel Type: " + channelJson.getInt("type"));
         }
@@ -143,13 +141,13 @@ public class InteractionImpl implements Interaction
         }
     }
 
-    private PartialGuild getOrCreatePartialGuild(DataObject data)
+    private PartialGuildImpl getOrCreatePartialGuild(DataObject data)
     {
-        PartialGuild partialGuild = null;
+        PartialGuildImpl partialGuild = null;
         if (data.hasKey("guild_id"))
         {
             final long guildId = data.getUnsignedLong("guild_id");
-            partialGuild = api.getGuildById(guildId);
+            partialGuild = (PartialGuildImpl) api.getGuildById(guildId);
             if (partialGuild == null)
                 partialGuild = new PartialGuildImpl(api, guildId);
         }
@@ -201,16 +199,16 @@ public class InteractionImpl implements Interaction
 
     @Nullable
     @Override
-    public Guild getGuild()
+    public GuildImpl getGuild()
     {
         if (hasGuild())
-            return (Guild) guild;
+            return (GuildImpl) guild;
         throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
     }
 
     @Nullable
     @Override
-    public PartialGuild getPartialGuild()
+    public PartialGuildImpl getPartialGuild()
     {
         return guild;
     }

@@ -626,6 +626,14 @@ public class EntityBuilder
         return createMember(guild, memberJson, null, null);
     }
 
+    public MemberImpl createBestMember(PartialGuildImpl guild, DataObject memberJson)
+    {
+        if (guild instanceof GuildImpl)
+            return createMember((GuildImpl) guild, memberJson);
+        else
+            return createMemberFromPartialGuild(guild, memberJson);
+    }
+
     public MemberImpl createMemberFromPartialGuild(PartialGuildImpl guild, DataObject memberJson)
     {
         User user = createUser(memberJson.getObject("user"));
@@ -647,6 +655,9 @@ public class EntityBuilder
 
         if (!memberJson.isNull("pending"))
             member.setPending(memberJson.getBoolean("pending"));
+
+        // Absent outside interactions and in message mentions
+        member.setInteractionPermissions(memberJson.getLong("permissions", 0L));
 
         return member;
     }
