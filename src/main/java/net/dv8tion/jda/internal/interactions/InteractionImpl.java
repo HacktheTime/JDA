@@ -191,12 +191,6 @@ public class InteractionImpl implements Interaction
         return token;
     }
 
-    @Override
-    public boolean hasGuild()
-    {
-        return guild.isGuild();
-    }
-
     @Nullable
     @Override
     public GuildImpl getGuild()
