@@ -55,12 +55,9 @@ public abstract class ComponentInteractionImpl extends DeferrableInteractionImpl
         }
         else
         {
-            Guild guild = getGuild();
+            Guild guild = hasGuild() ? getGuild() : null;
             MessageChannel channel = getChannel();
-            if (channel != null)
-                message = jda.getEntityBuilder().createMessageWithChannel(messageJson, channel, false);
-            else
-                message = jda.getEntityBuilder().createMessageWithLookup(messageJson, guild, false);
+            message = jda.getEntityBuilder().createMessageBestEffort(messageJson, channel, guild);
             // We assume that component interactions come from messages the bot sent
             ((ReceivedMessage) message).withHook(getHook());
         }
