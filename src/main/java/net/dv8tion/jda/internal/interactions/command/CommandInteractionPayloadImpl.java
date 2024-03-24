@@ -19,6 +19,7 @@ package net.dv8tion.jda.internal.interactions.command;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
@@ -124,14 +125,14 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
                 });
             });
             resolveJson.optObject("roles").ifPresent(roles ->
-                    { throw new UnsupportedOperationException("Implement creating from json"); }
-                    //TODO dont forget to set raw permissions with the one provided by discord
-//                roles.keys()
-//                    .stream()
-//                    .map(this.guild::getRoleById)
-//                    .filter(Objects::nonNull)
-//                    .forEach(role -> resolved.put(role.getIdLong(), role))
-            );
+            {
+                roles.keys().forEach(roleId ->
+                {
+                    final DataObject roleJson = roles.getObject(roleId);
+                    final Role role = entityBuilder.createBestRole(guild, roleJson);
+                    resolved.put(role.getIdLong(), role);
+                });
+            });
             resolveJson.optObject("channels").ifPresent(channels ->
                     { throw new UnsupportedOperationException("Implement creating from json"); }
 //                channels.keys().forEach(id -> {

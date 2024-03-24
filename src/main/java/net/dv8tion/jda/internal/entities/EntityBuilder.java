@@ -1658,6 +1658,14 @@ public class EntityBuilder
         }
     }
 
+    public Role createBestRole(PartialGuild guild, DataObject roleJson)
+    {
+        if (guild instanceof GuildImpl)
+            return createRole((GuildImpl) guild, roleJson, guild.getIdLong());
+        else
+            return createRoleFromPartialGuild(guild, roleJson);
+    }
+
     public Role createRole(GuildImpl guild, DataObject roleJson, long guildId)
     {
         boolean playbackCache = false;
@@ -1670,19 +1678,30 @@ public class EntityBuilder
             SnowflakeCacheViewImpl<Role> roleView = guild.getRolesView();
             try (UnlockHook hook = roleView.writeLock())
             {
-                role = new RoleImpl(id, guild);
+                role = createRoleFromPartialGuild(guild, roleJson);
                 playbackCache = roleView.getMap().put(id, role) == null;
             }
         }
+
+        if (playbackCache)
+            getJDA().getEventCache().playbackCache(EventCache.Type.ROLE, id);
+        return role;
+    }
+
+    public RoleImpl createRoleFromPartialGuild(PartialGuild guild, DataObject roleJson)
+    {
+        final long id = roleJson.getLong("id");
+        RoleImpl role = new RoleImpl(id, guild);
+
         final int color = roleJson.getInt("color");
         role.setName(roleJson.getString("name"))
-            .setRawPosition(roleJson.getInt("position"))
-            .setRawPermissions(roleJson.getLong("permissions"))
-            .setManaged(roleJson.getBoolean("managed"))
-            .setHoisted(roleJson.getBoolean("hoist"))
-            .setColor(color == 0 ? Role.DEFAULT_COLOR_RAW : color)
-            .setMentionable(roleJson.getBoolean("mentionable"))
-            .setTags(roleJson.optObject("tags").orElseGet(DataObject::empty));
+                .setRawPosition(roleJson.getInt("position"))
+                .setRawPermissions(roleJson.getLong("permissions"))
+                .setManaged(roleJson.getBoolean("managed"))
+                .setHoisted(roleJson.getBoolean("hoist"))
+                .setColor(color == 0 ? Role.DEFAULT_COLOR_RAW : color)
+                .setMentionable(roleJson.getBoolean("mentionable"))
+                .setTags(roleJson.optObject("tags").orElseGet(DataObject::empty));
 
         final String iconId = roleJson.getString("icon", null);
         final String emoji = roleJson.getString("unicode_emoji", null);
@@ -1691,8 +1710,6 @@ public class EntityBuilder
         else
             role.setIcon(new RoleIcon(iconId, emoji, id));
 
-        if (playbackCache)
-            getJDA().getEventCache().playbackCache(EventCache.Type.ROLE, id);
         return role;
     }
 

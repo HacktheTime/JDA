@@ -51,7 +51,7 @@ public class RoleImpl implements Role
 {
     private final long id;
     private final JDAImpl api;
-    private Guild guild;
+    private PartialGuild guild;
 
     private RoleTagsImpl tags;
     private String name;
@@ -64,7 +64,7 @@ public class RoleImpl implements Role
     private int frozenPosition = Integer.MIN_VALUE; // this is used exclusively for delete events
     private RoleIcon icon;
 
-    public RoleImpl(long id, Guild guild)
+    public RoleImpl(long id, PartialGuild guild)
     {
         this.id = id;
         this.api =(JDAImpl) guild.getJDA();
@@ -178,7 +178,7 @@ public class RoleImpl implements Role
     @Override
     public boolean hasPermission(@Nonnull Permission... permissions)
     {
-        long effectivePerms = rawPermissions | getGuild().getPublicRole().getPermissionsRaw();
+        long effectivePerms = rawPermissions | (hasGuild() ? getGuild().getPublicRole().getPermissionsRaw() : 0);
         for (Permission perm : permissions)
         {
             final long rawValue = perm.getRawValue();
@@ -449,8 +449,11 @@ public class RoleImpl implements Role
 
     public RoleImpl setRawPosition(int rawPosition)
     {
-        SortedSnowflakeCacheViewImpl<Role> roleCache = (SortedSnowflakeCacheViewImpl<Role>) getGuild().getRoleCache();
-        roleCache.clearCachedLists();
+        if (hasGuild())
+        {
+            SortedSnowflakeCacheViewImpl<Role> roleCache = (SortedSnowflakeCacheViewImpl<Role>) getGuild().getRoleCache();
+            roleCache.clearCachedLists();
+        }
         this.rawPosition = rawPosition;
         return this;
     }
