@@ -34,6 +34,19 @@ public interface PartialGuild extends ISnowflake
     @Nonnull
     JDA getJDA();
 
+    default boolean isGuild()
+    {
+        return this instanceof Guild;
+    }
+
+    @Nonnull
+    default Guild asGuild()
+    {
+        if (isGuild())
+            return ((Guild) this);
+        throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
+    }
+
     /**
      * The Features of the {@link net.dv8tion.jda.api.entities.Guild Guild}.
      *

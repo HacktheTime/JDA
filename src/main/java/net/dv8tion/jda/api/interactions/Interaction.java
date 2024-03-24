@@ -98,6 +98,10 @@ public interface Interaction extends ISnowflake, IPartialGuildHolder
     @Nullable
     Guild getGuild();
 
+    @Nullable
+    @Override
+    PartialGuild getPartialGuild();
+
     /**
      * Whether this interaction came from a {@link Guild}.
      * <br>This is identical to {@code getPartialGuild() != null}

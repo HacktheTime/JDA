@@ -39,16 +39,14 @@ public abstract class AbstractGuildChannelImpl<T extends AbstractGuildChannelImp
     @Override
     public boolean hasGuild()
     {
-        return guild instanceof GuildImpl;
+        return guild.isGuild();
     }
 
     @Nonnull
     @Override
     public GuildImpl getGuild()
     {
-        if (hasGuild())
-            return (GuildImpl) guild;
-        throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
+        return (GuildImpl) guild.asGuild();
     }
 
     @Nonnull

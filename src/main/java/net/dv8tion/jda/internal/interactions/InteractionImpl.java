@@ -194,16 +194,15 @@ public class InteractionImpl implements Interaction
     @Override
     public boolean hasGuild()
     {
-        return guild instanceof Guild;
+        return guild.isGuild();
     }
 
     @Nullable
     @Override
     public GuildImpl getGuild()
     {
-        if (hasGuild())
-            return (GuildImpl) guild;
-        throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
+        if (guild == null) return null;
+        return (GuildImpl) guild.asGuild();
     }
 
     @Nullable

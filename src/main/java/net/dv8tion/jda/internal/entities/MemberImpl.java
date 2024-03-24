@@ -90,16 +90,14 @@ public class MemberImpl implements Member
     @Override
     public boolean hasGuild()
     {
-        return guild instanceof GuildImpl;
+        return guild.isGuild();
     }
 
     @Nonnull
     @Override
     public GuildImpl getGuild()
     {
-        if (!hasGuild())
-            throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
-        return (GuildImpl) getPartialGuild();
+        return (GuildImpl) getPartialGuild().asGuild();
     }
 
     @Nonnull

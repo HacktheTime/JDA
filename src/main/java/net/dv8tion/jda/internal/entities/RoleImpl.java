@@ -272,19 +272,11 @@ public class RoleImpl implements Role
         return PermissionUtil.canInteract(this, role);
     }
 
-    @Override
-    public boolean hasGuild()
-    {
-        return guild instanceof GuildImpl;
-    }
-
     @Nonnull
     @Override
     public Guild getGuild()
     {
-        if (!hasGuild())
-            throw new IllegalStateException("Cannot get a full guild object from an unknown guild");
-        return (Guild) getPartialGuild();
+        return getPartialGuild().asGuild();
     }
 
     @Nonnull
