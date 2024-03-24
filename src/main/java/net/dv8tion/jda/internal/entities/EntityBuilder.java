@@ -1730,7 +1730,10 @@ public class EntityBuilder
     {
         // Use channel directly if message is from a known guild channel
         if (channel instanceof GuildMessageChannel)
-            return createMessage0(json, channel, (GuildImpl) ((GuildMessageChannel) channel).getGuild(), modifyCache);
+        {
+            final PartialGuild partialGuild = ((GuildMessageChannel) channel).getPartialGuild();
+            return createMessage0(json, channel, partialGuild.isGuild() ? (GuildImpl) partialGuild.asGuild() : null, modifyCache);
+        }
         // Try to resolve private channel recipient if needed
         if (channel instanceof PrivateChannel)
             return createMessageWithLookup(json, null, modifyCache);
@@ -1795,7 +1798,7 @@ public class EntityBuilder
         final long authorId = author.getLong("id");
         final long channelId = jsonObject.getUnsignedLong("channel_id");
         final long guildId = channel instanceof GuildChannel
-                ? ((GuildChannel) channel).getGuild().getIdLong()
+                ? ((GuildChannel) channel).getPartialGuild().getIdLong()
                 : jsonObject.getUnsignedLong("guild_id", 0L);
         MemberImpl member = null;
 

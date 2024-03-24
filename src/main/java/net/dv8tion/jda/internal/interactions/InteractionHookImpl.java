@@ -221,7 +221,7 @@ public class InteractionHookImpl extends AbstractWebhookClient<Message> implemen
         if (interaction != null)
         {
             channel = (MessageChannel) interaction.getChannel();
-            guild = interaction.getGuild();
+            guild = interaction.hasGuild() ? interaction.getGuild() : null;
         }
 
         // Try finding the channel in cache through the id in the message
