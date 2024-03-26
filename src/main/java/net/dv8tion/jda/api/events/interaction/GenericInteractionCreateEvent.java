@@ -120,13 +120,6 @@ public class GenericInteractionCreateEvent extends Event implements Interaction
 
     @Nonnull
     @Override
-    public Set<Permission> getUserPermissions()
-    {
-        return interaction.getUserPermissions();
-    }
-
-    @Nonnull
-    @Override
     public Set<Permission> getApplicationPermissions()
     {
         return interaction.getApplicationPermissions();

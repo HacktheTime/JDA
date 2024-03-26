@@ -58,7 +58,7 @@ public class InteractionImpl implements Interaction
     protected final DiscordLocale userLocale;
     protected final InteractionContextType context;
     protected final IntegrationOwners integrationOwners;
-    protected final Set<Permission> userPermissions, appPermissions;
+    protected final Set<Permission> appPermissions;
     protected final JDAImpl api;
 
     //This is used to give a proper error when an interaction is ack'd twice
@@ -79,16 +79,6 @@ public class InteractionImpl implements Interaction
             this.context = InteractionContextType.fromKey(data.getString("context"));
         else
             this.context = null;
-        //TODO The bot and user permissions could be added in the temporary GuildChannel
-        // Meaning that you can still use (Self)Member#hasPermission(GuildChannel, Permission...) transparently
-        // The drawback is that the user might see the permission overrides and think they have them (document it)
-        // The code calculating the effective/explicit permissions uses the guild, which doesn't exist
-        // The user might also mistakenly use (Self)Member#hasPermission(Permission...) which will give unexpected results,
-        // should it throw if the guild is unknown?
-        // PermissionUtil.getEffectivePermission/getExplicitPermission(Member) would throw if the guild is unknown
-        // While the overload using the channel would ignore unknown guilds as it can use the channel overrides
-        //TODO should the default value really be 0?
-        this.userPermissions = Collections.unmodifiableSet(Permission.getPermissions(data.getObject("channel").getLong("permissions", 0L)));
         this.appPermissions = Collections.unmodifiableSet(Permission.getPermissions(data.getLong("app_permissions")));
         this.integrationOwners = new IntegrationOwnersImpl(data.getObject("authorizing_integration_owners"));
 
@@ -203,13 +193,6 @@ public class InteractionImpl implements Interaction
     public InteractionContextType getContext()
     {
         return context;
-    }
-
-    @Nonnull
-    @Override
-    public Set<Permission> getUserPermissions()
-    {
-        return userPermissions;
     }
 
     @Nonnull
