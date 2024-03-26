@@ -74,15 +74,11 @@ public class InteractionImpl implements Interaction
         this.guild = jda.getGuildById(data.getUnsignedLong("guild_id", 0L));
         this.channelId = data.getUnsignedLong("channel_id", 0L);
         this.userLocale = DiscordLocale.from(data.getString("locale", "en-US"));
+        // Absent in guild-scoped commands
         if (data.hasKey("context"))
             this.context = InteractionContextType.fromKey(data.getString("context"));
         else
-        {
-            //TODO someone claimed they received no context, it is documented as being nullable,
-            // but I've not seen context being null.
-            LOGGER.warn("No context provided in interaction");
             this.context = null;
-        }
         //TODO The bot and user permissions could be added in the temporary GuildChannel
         // Meaning that you can still use (Self)Member#hasPermission(GuildChannel, Permission...) transparently
         // The drawback is that the user might see the permission overrides and think they have them (document it)

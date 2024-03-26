@@ -233,7 +233,7 @@ public interface Interaction extends ISnowflake
         return getGuild().getLocale();
     }
 
-    //TODO document, maybe not null
+    //TODO document
     @Nullable
     InteractionContextType getContext();
 
