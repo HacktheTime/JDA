@@ -91,12 +91,18 @@ public class CommandImpl implements Command
                 : DefaultMemberPermissions.enabledFor(json.getLong("default_member_permissions"));
 
         this.guildOnly = !json.getBoolean("dm_permission", true);
-        this.contexts = json.getArray("contexts").stream(DataArray::getString)
-                .map(InteractionContextType::fromKey)
-                .collect(Helpers.toUnmodifiableEnumSet(InteractionContextType.class));
-        this.integrationTypes = json.getArray("integration_types").stream(DataArray::getString)
-                .map(IntegrationType::fromKey)
-                .collect(Helpers.toUnmodifiableEnumSet(IntegrationType.class));
+        this.contexts = json.optArray("contexts")
+                .map(d -> d.stream(DataArray::getString)
+                        .map(InteractionContextType::fromKey)
+                        .collect(Helpers.toUnmodifiableEnumSet(InteractionContextType.class))
+                )
+                .orElse(EnumSet.noneOf(InteractionContextType.class));
+        this.integrationTypes = json.optArray("integration_types")
+                .map(d -> d.stream(DataArray::getString)
+                        .map(IntegrationType::fromKey)
+                        .collect(Helpers.toUnmodifiableEnumSet(IntegrationType.class))
+                )
+                .orElse(EnumSet.noneOf(IntegrationType.class));
         this.nsfw = json.getBoolean("nsfw");
     }
 
