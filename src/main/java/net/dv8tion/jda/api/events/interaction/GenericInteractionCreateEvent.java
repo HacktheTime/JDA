@@ -125,7 +125,7 @@ public class GenericInteractionCreateEvent extends Event implements Interaction
         return interaction.getApplicationPermissions();
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public IntegrationOwners getIntegrationOwners()
     {

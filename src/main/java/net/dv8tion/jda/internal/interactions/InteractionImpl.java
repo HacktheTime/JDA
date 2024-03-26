@@ -80,7 +80,10 @@ public class InteractionImpl implements Interaction
         else
             this.context = null;
         this.appPermissions = Collections.unmodifiableSet(Permission.getPermissions(data.getLong("app_permissions")));
-        this.integrationOwners = new IntegrationOwnersImpl(data.getObject("authorizing_integration_owners"));
+        if (data.hasKey("authorizing_integration_owners"))
+            this.integrationOwners = new IntegrationOwnersImpl(data.getObject("authorizing_integration_owners"));
+        else
+            this.integrationOwners = null;
 
         DataObject channelJson = data.getObject("channel");
         if (guild != null)
@@ -202,7 +205,7 @@ public class InteractionImpl implements Interaction
         return appPermissions;
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public IntegrationOwners getIntegrationOwners()
     {
