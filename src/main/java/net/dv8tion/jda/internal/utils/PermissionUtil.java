@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.internal.entities.MemberImpl;
-import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPermissionContainerMixin;
+import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IInteractionPermissionMixin;
 import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
 import net.dv8tion.jda.internal.interactions.MemberInteractionPermissions;
 import org.apache.commons.collections4.CollectionUtils;
@@ -548,7 +548,7 @@ public class PermissionUtil
             return memberInteractionPermissions.getPermissions();
 
         //TODO apparently this does not include implicit permissions, whatever that means
-        final ChannelInteractionPermissions channelInteractionPermissions = ((IPermissionContainerMixin<?>) channel).getInteractionPermissions();
+        final ChannelInteractionPermissions channelInteractionPermissions = ((IInteractionPermissionMixin<?>) channel).getInteractionPermissions();
         if (channelInteractionPermissions.getMemberId() == member.getIdLong())
             return channelInteractionPermissions.getPermissions();
 

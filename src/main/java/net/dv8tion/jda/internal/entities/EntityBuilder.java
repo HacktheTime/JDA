@@ -62,6 +62,7 @@ import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.channel.concrete.*;
+import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IInteractionPermissionMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPermissionContainerMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPostContainerMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.AudioChannelMixin;
@@ -1669,7 +1670,7 @@ public class EntityBuilder
         }
     }
 
-    private void createChannelInteractionPermissions(IPermissionContainerMixin<?> channel, DataObject json)
+    private void createChannelInteractionPermissions(IInteractionPermissionMixin<?> channel, DataObject json)
     {
         if (!channel.hasGuild())
             channel.setInteractionPermissions(new ChannelInteractionPermissions(InteractionCreateHandler.INTERACTION_USER.get(), json.getLong("permissions")));
