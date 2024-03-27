@@ -268,7 +268,7 @@ public class MemberImpl implements Member
     public EnumSet<Permission> getPermissions(@Nonnull GuildChannel channel)
     {
         Checks.notNull(channel, "Channel");
-        if (!getGuild().equals(channel.getGuild()))
+        if (!getPartialGuild().equals(channel.getPartialGuild()))
             throw new IllegalArgumentException("Provided channel is not in the same guild as this member!");
 
         return Permission.getPermissions(PermissionUtil.getEffectivePermission(channel.getPermissionContainer(), this));
