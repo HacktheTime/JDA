@@ -70,7 +70,10 @@ import net.dv8tion.jda.internal.entities.emoji.RichCustomEmojiImpl;
 import net.dv8tion.jda.internal.entities.emoji.UnicodeEmojiImpl;
 import net.dv8tion.jda.internal.entities.sticker.*;
 import net.dv8tion.jda.internal.handle.EventCache;
+import net.dv8tion.jda.internal.handle.InteractionCreateHandler;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
 import net.dv8tion.jda.internal.interactions.IntegrationOwnersImpl;
+import net.dv8tion.jda.internal.interactions.MemberInteractionPermissions;
 import net.dv8tion.jda.internal.utils.Helpers;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import net.dv8tion.jda.internal.utils.UnlockHook;
@@ -663,7 +666,8 @@ public class EntityBuilder
         }
 
         // Absent outside interactions and in message mentions
-        member.setInteractionPermissions(memberJson.getLong("permissions", 0L));
+        if (memberJson.hasKey("permissions"))
+            member.setInteractionPermissions(new MemberInteractionPermissions(InteractionCreateHandler.INTERACTION_CHANNEL.get(), memberJson.getLong("permissions")));
 
         return member;
     }
@@ -1145,6 +1149,7 @@ public class EntityBuilder
             .setName(json.getString("name"))
             .setPosition(json.getInt("position"));
 
+        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1178,6 +1183,7 @@ public class EntityBuilder
             }
         }
 
+        createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
         return channel;
@@ -1198,7 +1204,7 @@ public class EntityBuilder
                 .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
                 .setSlowmode(json.getInt("rate_limit_per_user", 0));
 
-        createOverridesPass(channel, json.getArray("permission_overwrites"));
+        createChannelInteractionPermissions(channel, json);
         return channel;
     }
 
@@ -1237,6 +1243,7 @@ public class EntityBuilder
                 .setPosition(json.getInt("position"))
                 .setNSFW(json.getBoolean("nsfw"));
 
+        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1282,6 +1289,7 @@ public class EntityBuilder
 //            .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
             .setSlowmode(json.getInt("rate_limit_per_user", 0));
 
+        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1326,6 +1334,7 @@ public class EntityBuilder
 //            .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
             .setSlowmode(json.getInt("rate_limit_per_user", 0));
 
+        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1479,6 +1488,7 @@ public class EntityBuilder
                 .setSlowmode(json.getInt("rate_limit_per_user", 0))
                 .setNSFW(json.getBoolean("nsfw"));
 
+        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1530,6 +1540,7 @@ public class EntityBuilder
                 .setSlowmode(json.getInt("rate_limit_per_user", 0))
                 .setNSFW(json.getBoolean("nsfw"));
 
+        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1656,6 +1667,12 @@ public class EntityBuilder
                 LOG.warn("{}. Ignoring PermissionOverride.", e.getMessage());
             }
         }
+    }
+
+    private void createChannelInteractionPermissions(IPermissionContainerMixin<?> channel, DataObject json)
+    {
+        if (!channel.hasGuild())
+            channel.setInteractionPermissions(new ChannelInteractionPermissions(InteractionCreateHandler.INTERACTION_USER.get(), json.getLong("permissions")));
     }
 
     public Role createBestRole(PartialGuild guild, DataObject roleJson)

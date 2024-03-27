@@ -38,12 +38,14 @@ import net.dv8tion.jda.internal.entities.channel.middleman.AbstractGuildChannelI
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.*;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.StandardGuildChannelMixin;
 import net.dv8tion.jda.internal.entities.emoji.CustomEmojiImpl;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
 import net.dv8tion.jda.internal.managers.channel.concrete.MediaChannelManagerImpl;
 import net.dv8tion.jda.internal.utils.Checks;
 import net.dv8tion.jda.internal.utils.Helpers;
 import net.dv8tion.jda.internal.utils.cache.SortedSnowflakeCacheViewImpl;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -59,6 +61,7 @@ public class MediaChannelImpl extends AbstractGuildChannelImpl<MediaChannelImpl>
         ITopicChannelMixin<MediaChannelImpl>
 {
     private final TLongObjectMap<PermissionOverride> overrides = MiscUtil.newLongMap();
+    @Nullable private ChannelInteractionPermissions interactionPermissions;
     private final SortedSnowflakeCacheViewImpl<ForumTag> tagCache = new SortedSnowflakeCacheViewImpl<>(ForumTag.class, ForumTag::getName, Comparator.naturalOrder());
 
     private Emoji defaultReaction;
@@ -142,6 +145,23 @@ public class MediaChannelImpl extends AbstractGuildChannelImpl<MediaChannelImpl>
     public TLongObjectMap<PermissionOverride> getPermissionOverrideMap()
     {
         return overrides;
+    }
+
+    @Nonnull
+    @Override
+    public ChannelInteractionPermissions getInteractionPermissions()
+    {
+        if (interactionPermissions == null)
+            throw new IllegalStateException("Cannot get interaction permissions outside of an interaction");
+        return interactionPermissions;
+    }
+
+    @Nonnull
+    @Override
+    public MediaChannelImpl setInteractionPermissions(@Nonnull ChannelInteractionPermissions interactionPermissions)
+    {
+        this.interactionPermissions = interactionPermissions;
+        return this;
     }
 
     @Override

@@ -23,6 +23,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
+import net.dv8tion.jda.internal.entities.MemberImpl;
+import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPermissionContainerMixin;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
+import net.dv8tion.jda.internal.interactions.MemberInteractionPermissions;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -303,7 +307,8 @@ public class PermissionUtil
         Checks.notNull(member, "Member");
 
         if (!member.hasGuild())
-            return member.getEffectivePermissionsRaw();
+            throw new IllegalStateException("Cannot get the effective permissions of a member in an unknown guild without a channel. " +
+                    "Use the overload with the interaction's channel instead.");
 
         if (member.isOwner())
             return Permission.ALL_PERMISSIONS;
@@ -348,7 +353,7 @@ public class PermissionUtil
         Checks.check(channel.getPartialGuild().equals(member.getPartialGuild()), "Provided channel and provided member are not of the same guild!");
 
         if (!member.hasGuild())
-            return member.getEffectivePermissionsRaw();
+            return getInteractionPermissions(channel, member);
 
         if (member.isOwner())
         {
@@ -446,7 +451,8 @@ public class PermissionUtil
         Checks.notNull(member, "Member");
 
         if (!member.hasGuild())
-            return member.getEffectivePermissionsRaw();
+            throw new IllegalStateException("Cannot get the explicit permissions of a member in an unknown guild without a channel. " +
+                    "Use the overload with the interaction's channel instead.");
 
         final Guild guild = member.getGuild();
         long permission = guild.getPublicRole().getPermissionsRaw();
@@ -521,6 +527,9 @@ public class PermissionUtil
 
         checkGuild(channel.getPartialGuild(), member.getPartialGuild(), "Member");
 
+        if (!member.hasGuild())
+            return getInteractionPermissions(channel, member);
+
         long permission = includeRoles ? getExplicitPermission(member) : 0L;
 
         AtomicLong allow = new AtomicLong(0);
@@ -530,6 +539,21 @@ public class PermissionUtil
         getExplicitOverrides(channel, member, allow, deny);
 
         return apply(permission, allow.get(), deny.get());
+    }
+
+    private static long getInteractionPermissions(GuildChannel channel, Member member)
+    {
+        final MemberInteractionPermissions memberInteractionPermissions = ((MemberImpl) member).getInteractionPermissions();
+        if (memberInteractionPermissions.getChannelId() == channel.getIdLong())
+            return memberInteractionPermissions.getPermissions();
+
+        //TODO apparently this does not include implicit permissions, whatever that means
+        final ChannelInteractionPermissions channelInteractionPermissions = ((IPermissionContainerMixin<?>) channel).getInteractionPermissions();
+        if (channelInteractionPermissions.getMemberId() == member.getIdLong())
+            return channelInteractionPermissions.getPermissions();
+
+        throw new UnsupportedOperationException("Member permissions can only be retrieved in the interaction channel, " +
+                "and channels only contain the permissions of the interaction caller");
     }
 
     /**
@@ -590,8 +614,9 @@ public class PermissionUtil
         Checks.notNull(channel, "Channel");
         Checks.notNull(role, "Role");
 
+        // Can't know exactly what the role's permissions in that channel are, since we don't have the overrides.
         if (!role.hasGuild())
-            return role.getPermissionsRaw();
+            throw new IllegalStateException("Cannot get the explicit permissions of a role in an unknown guild");
 
         IPermissionContainer permsChannel = channel.getPermissionContainer();
 
@@ -614,12 +639,6 @@ public class PermissionUtil
 
     private static void getExplicitOverrides(GuildChannel channel, Member member, AtomicLong allow, AtomicLong deny)
     {
-        if (!member.hasGuild())
-        {
-            allow.set(member.getEffectivePermissionsRaw());
-            return;
-        }
-
         IPermissionContainer permsChannel = channel.getPermissionContainer();
         PermissionOverride override = permsChannel.getPermissionOverride(member.getGuild().getPublicRole());
         long allowRaw = 0;

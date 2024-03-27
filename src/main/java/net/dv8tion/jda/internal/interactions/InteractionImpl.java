@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.IntegrationOwners;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
-import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
@@ -98,15 +97,6 @@ public class InteractionImpl implements Interaction
         {
             member = jda.getEntityBuilder().createMemberFromPartialGuild(guild, data.getObject("member"));
             user = member.getUser();
-
-            channelJson.put("permission_overwrites", DataArray.fromCollection(Collections.singleton(
-                    DataObject.empty()
-                            .put("id", getUser().getIdLong())
-                            .put("type", 1)
-                            //TODO something something implicit permissions?
-                            .put("allow", channelJson.getLong("permissions"))
-                            .put("deny", 0)
-            )));
 
             channel = jda.getEntityBuilder().createGuildChannelFromPartialGuild(guild, channelJson);
             if (channel == null)

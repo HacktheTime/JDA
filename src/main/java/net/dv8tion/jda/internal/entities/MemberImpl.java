@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.api.utils.cache.CacheView;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPermissionContainerMixin;
+import net.dv8tion.jda.internal.interactions.MemberInteractionPermissions;
 import net.dv8tion.jda.internal.utils.Checks;
 import net.dv8tion.jda.internal.utils.EntityString;
 import net.dv8tion.jda.internal.utils.Helpers;
@@ -58,7 +59,7 @@ public class MemberImpl implements Member
     private int flags;
 
     // Permissions calculated by Discord
-    private long interactionPermissions;
+    @Nullable private MemberInteractionPermissions interactionPermissions;
 
     public MemberImpl(PartialGuildImpl guild, User user)
     {
@@ -251,9 +252,7 @@ public class MemberImpl implements Member
     @Override
     public long getEffectivePermissionsRaw()
     {
-        if (hasGuild())
-            return PermissionUtil.getEffectivePermission(this);
-        return interactionPermissions;
+        return PermissionUtil.getEffectivePermission(this);
     }
 
     @Nonnull
@@ -467,10 +466,18 @@ public class MemberImpl implements Member
         return this;
     }
 
-    public MemberImpl setInteractionPermissions(long interactionPermissions)
+    public MemberImpl setInteractionPermissions(@Nonnull MemberInteractionPermissions interactionPermissions)
     {
         this.interactionPermissions = interactionPermissions;
         return this;
+    }
+
+    @Nonnull
+    public MemberInteractionPermissions getInteractionPermissions()
+    {
+        if (interactionPermissions == null)
+            throw new IllegalStateException("Cannot get interaction permissions outside of an interaction");
+        return interactionPermissions;
     }
 
     public Set<Role> getRoleSet()

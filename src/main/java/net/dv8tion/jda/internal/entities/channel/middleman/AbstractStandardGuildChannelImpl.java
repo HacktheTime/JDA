@@ -21,11 +21,16 @@ import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.utils.MiscUtil;
 import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.StandardGuildChannelMixin;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class AbstractStandardGuildChannelImpl<T extends AbstractStandardGuildChannelImpl<T>> extends AbstractGuildChannelImpl<T>
         implements StandardGuildChannelMixin<T>
 {
     protected final TLongObjectMap<PermissionOverride> overrides = MiscUtil.newLongMap();
+    @Nullable private ChannelInteractionPermissions interactionPermissions;
 
     protected long parentCategoryId;
     protected int position;
@@ -51,6 +56,24 @@ public abstract class AbstractStandardGuildChannelImpl<T extends AbstractStandar
     public TLongObjectMap<PermissionOverride> getPermissionOverrideMap()
     {
         return overrides;
+    }
+
+    @Nonnull
+    @Override
+    public ChannelInteractionPermissions getInteractionPermissions()
+    {
+        if (interactionPermissions == null)
+            throw new IllegalStateException("Cannot get interaction permissions outside of an interaction");
+        return interactionPermissions;
+    }
+
+    @Nonnull
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setInteractionPermissions(@Nonnull ChannelInteractionPermissions interactionPermissions)
+    {
+        this.interactionPermissions = interactionPermissions;
+        return (T) this;
     }
 
     @Override

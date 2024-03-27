@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
 import net.dv8tion.jda.api.entities.channel.unions.IPermissionContainerUnion;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.GuildChannelMixin;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
 import net.dv8tion.jda.internal.requests.restaction.PermissionOverrideActionImpl;
 import net.dv8tion.jda.internal.utils.Checks;
 
@@ -36,6 +37,12 @@ public interface IPermissionContainerMixin<T extends IPermissionContainerMixin<T
         IPermissionContainerUnion,
         GuildChannelMixin<T>
 {
+    @Nonnull
+    ChannelInteractionPermissions getInteractionPermissions();
+
+    @Nonnull
+    T setInteractionPermissions(@Nonnull ChannelInteractionPermissions interactionPermissions);
+
     // ---- Default implementations of interface ----
     @Override
     default PermissionOverride getPermissionOverride(@Nonnull IPermissionHolder permissionHolder)

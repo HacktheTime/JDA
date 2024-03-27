@@ -38,12 +38,14 @@ import net.dv8tion.jda.internal.entities.channel.middleman.AbstractGuildChannelI
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.*;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.StandardGuildChannelMixin;
 import net.dv8tion.jda.internal.entities.emoji.CustomEmojiImpl;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
 import net.dv8tion.jda.internal.managers.channel.concrete.ForumChannelManagerImpl;
 import net.dv8tion.jda.internal.utils.Checks;
 import net.dv8tion.jda.internal.utils.Helpers;
 import net.dv8tion.jda.internal.utils.cache.SortedSnowflakeCacheViewImpl;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -51,7 +53,7 @@ import java.util.List;
 public class ForumChannelImpl extends AbstractGuildChannelImpl<ForumChannelImpl>
         implements ForumChannel,
                    GuildChannelUnion,
-                   StandardGuildChannelMixin<ForumChannelImpl>,
+        StandardGuildChannelMixin<ForumChannelImpl>,
                    IAgeRestrictedChannelMixin<ForumChannelImpl>,
                    ISlowmodeChannelMixin<ForumChannelImpl>,
                    IWebhookContainerMixin<ForumChannelImpl>,
@@ -59,6 +61,7 @@ public class ForumChannelImpl extends AbstractGuildChannelImpl<ForumChannelImpl>
                    ITopicChannelMixin<ForumChannelImpl>
 {
     private final TLongObjectMap<PermissionOverride> overrides = MiscUtil.newLongMap();
+    @Nullable private ChannelInteractionPermissions interactionPermissions;
     private final SortedSnowflakeCacheViewImpl<ForumTag> tagCache = new SortedSnowflakeCacheViewImpl<>(ForumTag.class, ForumTag::getName, Comparator.naturalOrder());
 
     private Emoji defaultReaction;
@@ -144,6 +147,23 @@ public class ForumChannelImpl extends AbstractGuildChannelImpl<ForumChannelImpl>
     public TLongObjectMap<PermissionOverride> getPermissionOverrideMap()
     {
         return overrides;
+    }
+
+    @Nonnull
+    @Override
+    public ChannelInteractionPermissions getInteractionPermissions()
+    {
+        if (interactionPermissions == null)
+            throw new IllegalStateException("Cannot get interaction permissions outside of an interaction");
+        return interactionPermissions;
+    }
+
+    @Nonnull
+    @Override
+    public ForumChannelImpl setInteractionPermissions(@Nonnull ChannelInteractionPermissions interactionPermissions)
+    {
+        this.interactionPermissions = interactionPermissions;
+        return this;
     }
 
     @Override

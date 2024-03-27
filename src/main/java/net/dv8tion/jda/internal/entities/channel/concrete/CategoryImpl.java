@@ -31,11 +31,13 @@ import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractGuildChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPermissionContainerMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPositionableChannelMixin;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
 import net.dv8tion.jda.internal.managers.channel.concrete.CategoryManagerImpl;
 import net.dv8tion.jda.internal.utils.Checks;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class CategoryImpl extends AbstractGuildChannelImpl<CategoryImpl> implements
         Category,
@@ -43,6 +45,7 @@ public class CategoryImpl extends AbstractGuildChannelImpl<CategoryImpl> impleme
         IPermissionContainerMixin<CategoryImpl>
 {
     private final TLongObjectMap<PermissionOverride> overrides = MiscUtil.newLongMap();
+    @Nullable private ChannelInteractionPermissions interactionPermissions;
 
     private int position;
 
@@ -163,6 +166,23 @@ public class CategoryImpl extends AbstractGuildChannelImpl<CategoryImpl> impleme
     public TLongObjectMap<PermissionOverride> getPermissionOverrideMap()
     {
         return overrides;
+    }
+
+    @Nonnull
+    @Override
+    public ChannelInteractionPermissions getInteractionPermissions()
+    {
+        if (interactionPermissions == null)
+            throw new IllegalStateException("Cannot get interaction permissions outside of an interaction");
+        return interactionPermissions;
+    }
+
+    @Nonnull
+    @Override
+    public CategoryImpl setInteractionPermissions(@Nonnull ChannelInteractionPermissions interactionPermissions)
+    {
+        this.interactionPermissions = interactionPermissions;
+        return this;
     }
 
     @Override
