@@ -18,8 +18,10 @@ package net.dv8tion.jda.internal.interactions.command;
 
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
@@ -134,15 +136,17 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
                 });
             });
             resolveJson.optObject("channels").ifPresent(channels ->
-                    { throw new UnsupportedOperationException("Implement creating from json"); }
-//                channels.keys().forEach(id -> {
-//                    ISnowflake channelObj = jda.getGuildChannelById(id);
-//                    DataObject channelJson = channels.getObject(id);
-//                    if (channelObj != null)
-//                        resolved.put(channelObj.getIdLong(), channelObj);
-//                    else if (ChannelType.fromId(channelJson.getInt("type")).isThread())
+                channels.keys().forEach(id -> {
+                    ISnowflake channelObj = jda.getGuildChannelById(id);
+                    DataObject channelJson = channels.getObject(id);
+                    if (channelObj != null)
+                        resolved.put(channelObj.getIdLong(), channelObj);
+                    else if (ChannelType.fromId(channelJson.getInt("type")).isThread())
+                        throw new UnsupportedOperationException("Implement creating ThreadChannel from json");
 //                        resolved.put(Long.parseUnsignedLong(id), api.getEntityBuilder().createThreadChannel(guild, channelJson, guild.getIdLong(), false));
-//                })
+                    else
+                        resolved.put(Long.parseUnsignedLong(id), entityBuilder.createGuildChannelFromPartialGuild(guild, channelJson));
+                })
             );
         }
     }
