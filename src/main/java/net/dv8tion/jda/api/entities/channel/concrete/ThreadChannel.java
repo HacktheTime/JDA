@@ -149,6 +149,9 @@ public interface ThreadChannel extends GuildMessageChannel, IMemberContainer, IS
         return getFlags().contains(ChannelFlag.PINNED);
     }
 
+    //TODO document
+    boolean hasParentChannel();
+
     /**
      * Gets the {@link IThreadContainer parent channel} of this thread.
      *

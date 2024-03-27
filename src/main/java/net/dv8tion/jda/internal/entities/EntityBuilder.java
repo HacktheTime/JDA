@@ -1357,7 +1357,6 @@ public class EntityBuilder
         boolean playbackCache = false;
         final long id = json.getUnsignedLong("id");
         final long parentId = json.getUnsignedLong("parent_id");
-        final ChannelType type = ChannelType.fromId(json.getInt("type"));
 
         if (guild == null)
             guild = (GuildImpl) getJDA().getGuildsView().get(guildId);
@@ -1375,7 +1374,7 @@ public class EntityBuilder
                     UnlockHook vlock = guildThreadView.writeLock();
                     UnlockHook jlock = threadView.writeLock())
             {
-                channel = new ThreadChannelImpl(id, guild, type);
+                channel = createThreadChannelFromUnknownGuild(guild, json);
                 if (modifyCache)
                 {
                     guildThreadView.put(channel);
@@ -1384,30 +1383,7 @@ public class EntityBuilder
             }
         }
 
-        DataObject threadMetadata = json.getObject("thread_metadata");
-
-        if (!json.isNull("applied_tags") && api.isCacheFlagSet(CacheFlag.FORUM_TAGS))
-        {
-            DataArray array = json.getArray("applied_tags");
-            channel.setAppliedTags(IntStream.range(0, array.length()).mapToLong(array::getUnsignedLong));
-        }
-
-        channel
-                .setName(json.getString("name"))
-                .setFlags(json.getInt("flags", 0))
-                .setParentChannel(parent)
-                .setOwnerId(json.getLong("owner_id"))
-                .setMemberCount(json.getInt("member_count"))
-                .setMessageCount(json.getInt("message_count"))
-                .setTotalMessageCount(json.getInt("total_message_count", 0))
-                .setLatestMessageIdLong(json.getLong("last_message_id", 0))
-                .setSlowmode(json.getInt("rate_limit_per_user", 0))
-                .setLocked(threadMetadata.getBoolean("locked"))
-                .setArchived(threadMetadata.getBoolean("archived"))
-                .setInvitable(threadMetadata.getBoolean("invitable"))
-                .setArchiveTimestamp(Helpers.toTimestamp(threadMetadata.getString("archive_timestamp")))
-                .setCreationTimestamp(threadMetadata.isNull("create_timestamp") ? 0 : Helpers.toTimestamp(threadMetadata.getString("create_timestamp")))
-                .setAutoArchiveDuration(ThreadChannel.AutoArchiveDuration.fromKey(threadMetadata.getInt("auto_archive_duration")));
+        channel.setParentChannel(parent);
 
         //If the bot in the thread already, then create a thread member for the bot.
         if (!json.isNull("member"))
@@ -1422,6 +1398,39 @@ public class EntityBuilder
 
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public ThreadChannelImpl createThreadChannelFromUnknownGuild(PartialGuildImpl guild, DataObject json)
+    {
+        final long id = json.getUnsignedLong("id");
+        final ChannelType type = ChannelType.fromId(json.getInt("type"));
+        ThreadChannelImpl channel = new ThreadChannelImpl(id, guild, type);
+
+        DataObject threadMetadata = json.getObject("thread_metadata");
+
+        if (!json.isNull("applied_tags") && api.isCacheFlagSet(CacheFlag.FORUM_TAGS))
+        {
+            DataArray array = json.getArray("applied_tags");
+            channel.setAppliedTags(IntStream.range(0, array.length()).mapToLong(array::getUnsignedLong));
+        }
+
+        channel
+                .setName(json.getString("name"))
+                .setFlags(json.getInt("flags", 0))
+                .setOwnerId(json.getLong("owner_id"))
+                .setMemberCount(json.getInt("member_count"))
+                .setMessageCount(json.getInt("message_count"))
+                .setTotalMessageCount(json.getInt("total_message_count", 0))
+                .setLatestMessageIdLong(json.getLong("last_message_id", 0))
+                .setSlowmode(json.getInt("rate_limit_per_user", 0))
+                .setLocked(threadMetadata.getBoolean("locked"))
+                .setArchived(threadMetadata.getBoolean("archived"))
+                .setInvitable(threadMetadata.getBoolean("invitable"))
+                .setArchiveTimestamp(Helpers.toTimestamp(threadMetadata.getString("archive_timestamp")))
+                .setCreationTimestamp(threadMetadata.isNull("create_timestamp") ? 0 : Helpers.toTimestamp(threadMetadata.getString("create_timestamp")))
+                .setAutoArchiveDuration(ThreadChannel.AutoArchiveDuration.fromKey(threadMetadata.getInt("auto_archive_duration")));
+
         return channel;
     }
 

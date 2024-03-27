@@ -98,7 +98,10 @@ public class InteractionImpl implements Interaction
             member = jda.getEntityBuilder().createMemberFromPartialGuild(guild, data.getObject("member"));
             user = member.getUser();
 
-            channel = jda.getEntityBuilder().createGuildChannelFromPartialGuild(guild, channelJson);
+            if (ChannelType.fromId(channelJson.getInt("type")).isThread())
+                channel = jda.getEntityBuilder().createThreadChannelFromUnknownGuild(guild, channelJson);
+            else
+                channel = jda.getEntityBuilder().createGuildChannelFromPartialGuild(guild, channelJson);
             if (channel == null)
                 throw new IllegalStateException("Failed to create channel instance for interaction! Channel Type: " + channelJson.getInt("type"));
         }

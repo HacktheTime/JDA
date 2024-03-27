@@ -38,7 +38,7 @@ import net.dv8tion.jda.api.requests.restaction.pagination.ThreadMemberPagination
 import net.dv8tion.jda.api.utils.TimeUtil;
 import net.dv8tion.jda.api.utils.cache.CacheView;
 import net.dv8tion.jda.internal.JDAImpl;
-import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractGuildChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.ISlowmodeChannelMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.GuildMessageChannelMixin;
@@ -67,7 +67,7 @@ public class ThreadChannelImpl extends AbstractGuildChannelImpl<ThreadChannelImp
 
     private TLongSet appliedTags = new TLongHashSet(ForumChannel.MAX_POST_TAGS);
     private AutoArchiveDuration autoArchiveDuration;
-    private IThreadContainerUnion parentChannel;
+    @Nullable private IThreadContainerUnion parentChannel;
     private boolean locked;
     private boolean archived;
     private boolean invitable;
@@ -81,7 +81,7 @@ public class ThreadChannelImpl extends AbstractGuildChannelImpl<ThreadChannelImp
     private int slowmode;
     private int flags;
 
-    public ThreadChannelImpl(long id, GuildImpl guild, ChannelType type)
+    public ThreadChannelImpl(long id, PartialGuildImpl guild, ChannelType type)
     {
         super(id, guild);
         this.type = type;
@@ -147,10 +147,19 @@ public class ThreadChannelImpl extends AbstractGuildChannelImpl<ThreadChannelImp
         return Collections.emptyList();
     }
 
+    @Override
+    public boolean hasParentChannel()
+    {
+        return parentChannel != null;
+    }
+
     @Nonnull
     @Override
     public IThreadContainerUnion getParentChannel()
     {
+        if (parentChannel == null)
+            throw new IllegalStateException("Cannot get the parent channel from a thread in an unknown guild");
+
         IThreadContainer realChannel = getGuild().getChannelById(IThreadContainer.class, parentChannel.getIdLong());
         if (realChannel != null)
             parentChannel = (IThreadContainerUnion) realChannel;
