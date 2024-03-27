@@ -234,7 +234,7 @@ public interface Interaction extends ISnowflake
     }
 
     //TODO document
-    @Nullable
+    @Nonnull
     InteractionContextType getContext();
 
     //TODO document

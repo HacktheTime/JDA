@@ -111,7 +111,7 @@ public class GenericInteractionCreateEvent extends Event implements Interaction
         return interaction.getGuildLocale();
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public InteractionContextType getContext()
     {

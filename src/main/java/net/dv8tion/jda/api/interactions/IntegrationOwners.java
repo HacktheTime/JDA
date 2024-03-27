@@ -18,18 +18,17 @@ package net.dv8tion.jda.api.interactions;
 
 import net.dv8tion.jda.api.entities.UserSnowflake;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 //TODO document
 public interface IntegrationOwners
 {
     //TODO document, not the same as the caller id!
-    @Nonnull
+    @Nullable
     UserSnowflake getUserIntegration();
 
-    //TODO document, false if absent
-    boolean hasGuildIntegration();
-
-    //TODO document, throw if absent, guild id in a guild, 0 in bot dms
-    long getGuildIntegration();
+    //TODO document, for user installed commands: guild id in a guild, 0 in bot dms
+    // Still very unclear when the field is present, may be a discord bug
+    @Nullable
+    Long getGuildIntegration();
 }

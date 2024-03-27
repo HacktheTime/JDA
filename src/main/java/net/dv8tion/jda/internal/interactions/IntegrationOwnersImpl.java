@@ -21,38 +21,37 @@ import net.dv8tion.jda.api.interactions.IntegrationOwners;
 import net.dv8tion.jda.api.interactions.IntegrationType;
 import net.dv8tion.jda.api.utils.data.DataObject;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class IntegrationOwnersImpl implements IntegrationOwners
 {
-    private final long guildIntegration;
+    private final Long guildIntegration;
     private final UserSnowflake userIntegration;
 
     public IntegrationOwnersImpl(DataObject authorizedIntegrationOwners)
     {
-        this.userIntegration = UserSnowflake.fromId(authorizedIntegrationOwners.getLong(IntegrationType.USER_INSTALL.getType()));
-        this.guildIntegration = authorizedIntegrationOwners.getLong(IntegrationType.GUILD_INSTALL.getType(), -1);
+        if (authorizedIntegrationOwners.hasKey(IntegrationType.USER_INSTALL.getType()))
+            this.userIntegration = UserSnowflake.fromId(authorizedIntegrationOwners.getLong(IntegrationType.USER_INSTALL.getType()));
+        else
+            this.userIntegration = null;
+
+        if (authorizedIntegrationOwners.hasKey(IntegrationType.GUILD_INSTALL.getType()))
+            this.guildIntegration = authorizedIntegrationOwners.getLong(IntegrationType.GUILD_INSTALL.getType());
+        else
+            this.guildIntegration = null;
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public UserSnowflake getUserIntegration()
     {
         return userIntegration;
     }
 
+    @Nullable
     @Override
-    public boolean hasGuildIntegration()
+    public Long getGuildIntegration()
     {
-        return guildIntegration != -1;
-    }
-
-    @Override
-    public long getGuildIntegration()
-    {
-        if (!hasGuildIntegration())
-            throw new IllegalStateException("This interaction has no guild integration owner");
-
         return guildIntegration;
     }
 }
