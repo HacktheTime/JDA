@@ -69,9 +69,9 @@ public class PartialGuildImpl implements PartialGuild
     {
         if (o == this)
             return true;
-        if (!(o instanceof GuildImpl))
+        if (!(o instanceof PartialGuildImpl))
             return false;
-        GuildImpl oGuild = (GuildImpl) o;
+        PartialGuildImpl oGuild = (PartialGuildImpl) o;
         return this.id == oGuild.id;
     }
 
