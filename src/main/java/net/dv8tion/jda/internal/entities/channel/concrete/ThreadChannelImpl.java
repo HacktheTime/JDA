@@ -40,8 +40,10 @@ import net.dv8tion.jda.api.utils.cache.CacheView;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractGuildChannelImpl;
+import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IInteractionPermissionMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.ISlowmodeChannelMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.GuildMessageChannelMixin;
+import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
 import net.dv8tion.jda.internal.managers.channel.concrete.ThreadChannelManagerImpl;
 import net.dv8tion.jda.internal.requests.DeferredRestAction;
 import net.dv8tion.jda.internal.requests.RestActionImpl;
@@ -60,10 +62,12 @@ import java.util.stream.LongStream;
 public class ThreadChannelImpl extends AbstractGuildChannelImpl<ThreadChannelImpl> implements
         ThreadChannel,
         GuildMessageChannelMixin<ThreadChannelImpl>,
-        ISlowmodeChannelMixin<ThreadChannelImpl>
+        ISlowmodeChannelMixin<ThreadChannelImpl>,
+        IInteractionPermissionMixin<ThreadChannelImpl>
 {
     private final ChannelType type;
     private final CacheView.SimpleCacheView<ThreadMember> threadMembers = new CacheView.SimpleCacheView<>(ThreadMember.class, null);
+    @Nullable private ChannelInteractionPermissions interactionPermissions;
 
     private TLongSet appliedTags = new TLongHashSet(ForumChannel.MAX_POST_TAGS);
     private AutoArchiveDuration autoArchiveDuration;
@@ -442,6 +446,23 @@ public class ThreadChannelImpl extends AbstractGuildChannelImpl<ThreadChannelImp
     {
         this.flags = flags;
         return this;
+    }
+
+    @Nonnull
+    @Override
+    public ThreadChannelImpl setInteractionPermissions(@Nonnull ChannelInteractionPermissions interactionPermissions)
+    {
+        this.interactionPermissions = interactionPermissions;
+        return this;
+    }
+
+    @Nonnull
+    @Override
+    public ChannelInteractionPermissions getInteractionPermissions()
+    {
+        if (interactionPermissions == null)
+            throw new IllegalStateException("Cannot get interaction permissions outside of an interaction");
+        return interactionPermissions;
     }
 
     public long getArchiveTimestamp()

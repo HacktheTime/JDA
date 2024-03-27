@@ -1431,6 +1431,7 @@ public class EntityBuilder
                 .setCreationTimestamp(threadMetadata.isNull("create_timestamp") ? 0 : Helpers.toTimestamp(threadMetadata.getString("create_timestamp")))
                 .setAutoArchiveDuration(ThreadChannel.AutoArchiveDuration.fromKey(threadMetadata.getInt("auto_archive_duration")));
 
+        createChannelInteractionPermissions(channel, json);
         return channel;
     }
 
