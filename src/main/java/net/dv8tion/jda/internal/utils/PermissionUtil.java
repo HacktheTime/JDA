@@ -272,7 +272,7 @@ public class PermissionUtil
      * @return True -
      *         if the {@link net.dv8tion.jda.api.entities.Member Member} effectively has the specified {@link net.dv8tion.jda.api.Permission Permissions}.
      */
-    public static boolean checkPermission(IPermissionContainer channel, Member member, Permission... permissions)
+    public static boolean checkPermission(GuildChannel channel, Member member, Permission... permissions)
     {
         Checks.notNull(channel, "Channel");
         Checks.notNull(member, "Member");
@@ -355,6 +355,7 @@ public class PermissionUtil
         if (!member.hasGuild())
             return getInteractionPermissions(channel, member);
 
+        IPermissionContainer permsChannel = channel.getPermissionContainer();
         if (member.isOwner())
         {
             // Owner effectively has all permissions
@@ -367,15 +368,15 @@ public class PermissionUtil
             return Permission.ALL_PERMISSIONS;
 
         // MANAGE_CHANNEL allows to delete channels within a category (this is undocumented behavior)
-        if (channel instanceof ICategorizableChannel) {
-            ICategorizableChannel categorizableChannel = (ICategorizableChannel) channel;
+        if (permsChannel instanceof ICategorizableChannel) {
+            ICategorizableChannel categorizableChannel = (ICategorizableChannel) permsChannel;
             if (categorizableChannel.getParentCategory() != null && checkPermission(categorizableChannel.getParentCategory(), member, Permission.MANAGE_CHANNEL))
                 permission |= Permission.MANAGE_CHANNEL.getRawValue();
         }
 
         AtomicLong allow = new AtomicLong(0);
         AtomicLong deny = new AtomicLong(0);
-        getExplicitOverrides(channel, member, allow, deny);
+        getExplicitOverrides(permsChannel, member, allow, deny);
         permission = apply(permission, allow.get(), deny.get());
         final long viewChannel = Permission.VIEW_CHANNEL.getRawValue();
         final long connectChannel = Permission.VOICE_CONNECT.getRawValue();
@@ -383,7 +384,7 @@ public class PermissionUtil
         //When the permission to view the channel or to connect to the channel is not applied it is not granted
         // This means that we have no access to this channel at all
         // See https://github.com/discord/discord-api-docs/issues/1522
-        final boolean hasConnect = !channel.getType().isAudio() || isApplied(permission, connectChannel);
+        final boolean hasConnect = !permsChannel.getType().isAudio() || isApplied(permission, connectChannel);
         final boolean hasAccess = isApplied(permission, viewChannel) && hasConnect;
 
         // See https://discord.com/developers/docs/topics/permissions#permissions-for-timed-out-members
