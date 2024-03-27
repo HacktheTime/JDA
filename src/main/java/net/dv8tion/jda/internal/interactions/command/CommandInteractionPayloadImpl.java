@@ -20,7 +20,6 @@ import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -39,6 +38,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CommandInteractionPayloadImpl extends InteractionImpl implements CommandInteractionPayload
 {
@@ -128,12 +128,16 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
             });
             resolveJson.optObject("roles").ifPresent(roles ->
             {
-                roles.keys().forEach(roleId ->
-                {
-                    final DataObject roleJson = roles.getObject(roleId);
-                    final Role role = entityBuilder.createBestRole(guild, roleJson);
-                    resolved.put(role.getIdLong(), role);
-                });
+                roles.keys()
+                        .stream()
+                        .map(roleId ->
+                        {
+                            if (hasGuild())
+                                return guild.asGuild().getRoleById(roleId);
+                            return entityBuilder.createRoleFromPartialGuild(guild, roles.getObject(roleId));
+                        })
+                        .filter(Objects::nonNull)
+                        .forEach(role -> resolved.put(role.getIdLong(), role));
             });
             resolveJson.optObject("channels").ifPresent(channels ->
                 channels.keys().forEach(id -> {

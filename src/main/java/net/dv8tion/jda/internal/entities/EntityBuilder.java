@@ -1686,14 +1686,6 @@ public class EntityBuilder
             channel.setInteractionPermissions(new ChannelInteractionPermissions(InteractionCreateHandler.INTERACTION_USER.get(), json.getLong("permissions")));
     }
 
-    public Role createBestRole(PartialGuild guild, DataObject roleJson)
-    {
-        if (guild instanceof GuildImpl)
-            return createRole((GuildImpl) guild, roleJson, guild.getIdLong());
-        else
-            return createRoleFromPartialGuild(guild, roleJson);
-    }
-
     public Role createRole(GuildImpl guild, DataObject roleJson, long guildId)
     {
         boolean playbackCache = false;
