@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.utils.MiscUtil;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractStandardGuildChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IAgeRestrictedChannelMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.ISlowmodeChannelMixin;
@@ -66,7 +66,7 @@ public class VoiceChannelImpl extends AbstractStandardGuildChannelImpl<VoiceChan
     private int slowmode;
     private boolean nsfw;
 
-    public VoiceChannelImpl(long id, GuildImpl guild)
+    public VoiceChannelImpl(long id, PartialGuildImpl guild)
     {
         super(id, guild);
     }

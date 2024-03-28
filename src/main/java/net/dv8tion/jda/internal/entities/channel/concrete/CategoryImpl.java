@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.managers.channel.concrete.CategoryManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.order.CategoryOrderAction;
 import net.dv8tion.jda.api.utils.MiscUtil;
-import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractGuildChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPermissionContainerMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IPositionableChannelMixin;
@@ -49,7 +49,7 @@ public class CategoryImpl extends AbstractGuildChannelImpl<CategoryImpl> impleme
 
     private int position;
 
-    public CategoryImpl(long id, GuildImpl guild)
+    public CategoryImpl(long id, PartialGuildImpl guild)
     {
         super(id, guild);
     }

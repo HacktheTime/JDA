@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.StageInstanceAction;
 import net.dv8tion.jda.api.utils.MiscUtil;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractStandardGuildChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IAgeRestrictedChannelMixin;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.ISlowmodeChannelMixin;
@@ -72,7 +72,7 @@ public class StageChannelImpl extends AbstractStandardGuildChannelImpl<StageChan
     private boolean ageRestricted;
     private long latestMessageId;
 
-    public StageChannelImpl(long id, GuildImpl guild)
+    public StageChannelImpl(long id, PartialGuildImpl guild)
     {
         super(id, guild);
     }

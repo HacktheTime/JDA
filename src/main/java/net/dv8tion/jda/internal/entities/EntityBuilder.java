@@ -442,17 +442,17 @@ public class EntityBuilder
         case TEXT:
             return createTextChannelFromPartialGuild(guildObj, channelData);
         case NEWS:
-//            return createNewsChannel(guildObj, channelData, guildObj.getIdLong());
+            return createNewsChannelFromPartialGuild(guildObj, channelData);
         case STAGE:
-//            return createStageChannel(guildObj, channelData, guildObj.getIdLong());
+            return createStageChannelFromPartialGuild(guildObj, channelData);
         case VOICE:
-//            return createVoiceChannel(guildObj, channelData, guildObj.getIdLong());
+            return createVoiceChannelFromPartialGuild(guildObj, channelData);
         case CATEGORY:
-//            return createCategory(guildObj, channelData, guildObj.getIdLong());
+            return createCategoryFromPartialGuild(guildObj, channelData);
         case FORUM:
-//            return createForumChannel(guildObj, channelData, guildObj.getIdLong());
+            return createForumChannelFromPartialGuild(guildObj, channelData);
         case MEDIA:
-//            return createMediaChannel(guildObj, channelData, guildObj.getIdLong());
+            return createMediaChannelFromPartialGuild(guildObj, channelData);
         default:
             LOG.debug("Cannot create channel for type " + channelData.getInt("type"));
             return null;
@@ -1140,20 +1140,28 @@ public class EntityBuilder
                 UnlockHook glock = guildView.writeLock();
                 UnlockHook jlock = globalView.writeLock())
             {
-                channel = new CategoryImpl(id, guild);
+                channel = createCategoryFromPartialGuild(guild, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
-        channel
-            .setName(json.getString("name"))
-            .setPosition(json.getInt("position"));
-
-        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public CategoryImpl createCategoryFromPartialGuild(PartialGuildImpl guild, DataObject json)
+    {
+        final long id = json.getLong("id");
+        final CategoryImpl channel = new CategoryImpl(id, guild);
+
+        channel
+                .setName(json.getString("name"))
+                .setPosition(json.getInt("position"));
+
+        createChannelInteractionPermissions(channel, json);
         return channel;
     }
 
@@ -1230,11 +1238,22 @@ public class EntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = new NewsChannelImpl(id, guildObj);
+                channel = createNewsChannelFromPartialGuild(guildObj, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
+
+        createOverridesPass(channel, json.getArray("permission_overwrites"));
+        if (playbackCache)
+            getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public NewsChannelImpl createNewsChannelFromPartialGuild(@Nonnull PartialGuildImpl guildObj, DataObject json)
+    {
+        final long id = json.getLong("id");
+        NewsChannelImpl channel = new NewsChannelImpl(id, guildObj);
 
         channel
                 .setParentCategory(json.getLong("parent_id", 0))
@@ -1245,9 +1264,6 @@ public class EntityBuilder
                 .setNSFW(json.getBoolean("nsfw"));
 
         createChannelInteractionPermissions(channel, json);
-        createOverridesPass(channel, json.getArray("permission_overwrites"));
-        if (playbackCache)
-            getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
         return channel;
     }
 
@@ -1271,29 +1287,37 @@ public class EntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = new VoiceChannelImpl(id, guild);
+                channel = createVoiceChannelFromPartialGuild(guild, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
-        channel
-            .setParentCategory(json.getLong("parent_id", 0))
-            .setLatestMessageIdLong(json.getLong("last_message_id", 0))
-            .setName(json.getString("name"))
-            .setStatus(json.getString("status", ""))
-            .setPosition(json.getInt("position"))
-            .setUserLimit(json.getInt("user_limit"))
-            .setNSFW(json.getBoolean("nsfw"))
-            .setBitrate(json.getInt("bitrate"))
-            .setRegion(json.getString("rtc_region", null))
-//            .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
-            .setSlowmode(json.getInt("rate_limit_per_user", 0));
-
-        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public VoiceChannelImpl createVoiceChannelFromPartialGuild(@Nonnull PartialGuildImpl guild, DataObject json)
+    {
+        final long id = json.getLong("id");
+        VoiceChannelImpl channel = new VoiceChannelImpl(id, guild);
+
+        channel
+                .setParentCategory(json.getLong("parent_id", 0))
+                .setLatestMessageIdLong(json.getLong("last_message_id", 0))
+                .setName(json.getString("name"))
+                .setStatus(json.getString("status", ""))
+                .setPosition(json.getInt("position"))
+                .setUserLimit(json.getInt("user_limit"))
+                .setNSFW(json.getBoolean("nsfw"))
+                .setBitrate(json.getInt("bitrate"))
+                .setRegion(json.getString("rtc_region", null))
+//            .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
+                .setSlowmode(json.getInt("rate_limit_per_user", 0));
+
+        createChannelInteractionPermissions(channel, json);
         return channel;
     }
 
@@ -1317,28 +1341,35 @@ public class EntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = new StageChannelImpl(id, guild);
+                channel = createStageChannelFromPartialGuild(guild, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
-        channel
-            .setParentCategory(json.getLong("parent_id", 0))
-            .setLatestMessageIdLong(json.getLong("last_message_id", 0))
-            .setName(json.getString("name"))
-            .setPosition(json.getInt("position"))
-            .setBitrate(json.getInt("bitrate"))
-            .setUserLimit(json.getInt("user_limit", 0))
-            .setNSFW(json.getBoolean("nsfw"))
-            .setRegion(json.getString("rtc_region", null))
-//            .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
-            .setSlowmode(json.getInt("rate_limit_per_user", 0));
-
-        createChannelInteractionPermissions(channel, json);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public StageChannelImpl createStageChannelFromPartialGuild(@Nonnull PartialGuildImpl guild, DataObject json)
+    {
+        final long id = json.getLong("id");
+        final StageChannelImpl channel = new StageChannelImpl(id, guild);
+        channel
+                .setParentCategory(json.getLong("parent_id", 0))
+                .setLatestMessageIdLong(json.getLong("last_message_id", 0))
+                .setName(json.getString("name"))
+                .setPosition(json.getInt("position"))
+                .setBitrate(json.getInt("bitrate"))
+                .setUserLimit(json.getInt("user_limit", 0))
+                .setNSFW(json.getBoolean("nsfw"))
+                .setRegion(json.getString("rtc_region", null))
+//            .setDefaultThreadSlowmode(json.getInt("default_thread_rate_limit_per_user", 0))
+                .setSlowmode(json.getInt("rate_limit_per_user", 0));
+
+        createChannelInteractionPermissions(channel, json);
         return channel;
     }
 
@@ -1473,11 +1504,21 @@ public class EntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = new ForumChannelImpl(id, guild);
+                channel = createForumChannelFromPartialGuild(guild, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
+        createOverridesPass(channel, json.getArray("permission_overwrites"));
+        if (playbackCache)
+            getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public ForumChannelImpl createForumChannelFromPartialGuild(PartialGuildImpl guild, DataObject json)
+    {
+        final long id = json.getLong("id");
+        final ForumChannelImpl channel = new ForumChannelImpl(id, guild);
 
         if (api.isCacheFlagSet(CacheFlag.FORUM_TAGS))
         {
@@ -1500,9 +1541,6 @@ public class EntityBuilder
                 .setNSFW(json.getBoolean("nsfw"));
 
         createChannelInteractionPermissions(channel, json);
-        createOverridesPass(channel, json.getArray("permission_overwrites"));
-        if (playbackCache)
-            getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
         return channel;
     }
 
@@ -1526,11 +1564,21 @@ public class EntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = new MediaChannelImpl(id, guild);
+                channel = createMediaChannelFromPartialGuild(guild, json);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
+        createOverridesPass(channel, json.getArray("permission_overwrites"));
+        if (playbackCache)
+            getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
+        return channel;
+    }
+
+    public MediaChannelImpl createMediaChannelFromPartialGuild(PartialGuildImpl guild, DataObject json)
+    {
+        final long id = json.getLong("id");
+        final MediaChannelImpl channel = new MediaChannelImpl(id, guild);
 
         if (api.isCacheFlagSet(CacheFlag.FORUM_TAGS))
         {
@@ -1552,9 +1600,6 @@ public class EntityBuilder
                 .setNSFW(json.getBoolean("nsfw"));
 
         createChannelInteractionPermissions(channel, json);
-        createOverridesPass(channel, json.getArray("permission_overwrites"));
-        if (playbackCache)
-            getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
         return channel;
     }
 

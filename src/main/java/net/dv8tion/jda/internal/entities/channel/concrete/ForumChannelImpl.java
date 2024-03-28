@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.managers.channel.concrete.ForumChannelManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.utils.MiscUtil;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.PartialGuildImpl;
 import net.dv8tion.jda.internal.entities.channel.middleman.AbstractGuildChannelImpl;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.*;
 import net.dv8tion.jda.internal.entities.channel.mixin.middleman.StandardGuildChannelMixin;
@@ -75,7 +75,7 @@ public class ForumChannelImpl extends AbstractGuildChannelImpl<ForumChannelImpl>
     private int defaultLayout;
     protected int defaultThreadSlowmode;
 
-    public ForumChannelImpl(long id, GuildImpl guild)
+    public ForumChannelImpl(long id, PartialGuildImpl guild)
     {
         super(id, guild);
     }
