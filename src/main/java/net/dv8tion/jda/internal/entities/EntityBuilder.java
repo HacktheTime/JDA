@@ -1374,7 +1374,7 @@ public class EntityBuilder
                     UnlockHook vlock = guildThreadView.writeLock();
                     UnlockHook jlock = threadView.writeLock())
             {
-                channel = createThreadChannelFromUnknownGuild(guild, json);
+                channel = createThreadChannelFromPartialGuild(guild, json);
                 if (modifyCache)
                 {
                     guildThreadView.put(channel);
@@ -1401,7 +1401,7 @@ public class EntityBuilder
         return channel;
     }
 
-    public ThreadChannelImpl createThreadChannelFromUnknownGuild(PartialGuildImpl guild, DataObject json)
+    public ThreadChannelImpl createThreadChannelFromPartialGuild(PartialGuildImpl guild, DataObject json)
     {
         final long id = json.getUnsignedLong("id");
         final ChannelType type = ChannelType.fromId(json.getInt("type"));

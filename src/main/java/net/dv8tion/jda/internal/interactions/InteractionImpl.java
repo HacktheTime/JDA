@@ -99,7 +99,7 @@ public class InteractionImpl implements Interaction
             user = member.getUser();
 
             if (ChannelType.fromId(channelJson.getInt("type")).isThread())
-                channel = jda.getEntityBuilder().createThreadChannelFromUnknownGuild(guild, channelJson);
+                channel = jda.getEntityBuilder().createThreadChannelFromPartialGuild(guild, channelJson);
             else
                 channel = jda.getEntityBuilder().createGuildChannelFromPartialGuild(guild, channelJson);
             if (channel == null)
