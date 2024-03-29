@@ -1128,12 +1128,13 @@ public class EntityBuilder extends AbstractEntityBuilder
                 UnlockHook glock = guildView.writeLock();
                 UnlockHook jlock = globalView.writeLock())
             {
-                channel = createCategoryFromPartialGuild(guild, json);
+                channel = new CategoryImpl(id, guild);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
+        configureCategory(json, channel);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1170,12 +1171,13 @@ public class EntityBuilder extends AbstractEntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = createTextChannelFromPartialGuild(guildObj, json);
+                channel = new TextChannelImpl(id, guildObj);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
+        configureTextChannel(json, channel);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1212,12 +1214,13 @@ public class EntityBuilder extends AbstractEntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = createNewsChannelFromPartialGuild(guildObj, json);
+                channel = new NewsChannelImpl(id, guildObj);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
+        configureNewsChannel(json, channel);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1253,12 +1256,13 @@ public class EntityBuilder extends AbstractEntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = createVoiceChannelFromPartialGuild(guild, json);
+                channel = new VoiceChannelImpl(id, guild);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
+        configureVoiceChannel(json, channel);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1294,12 +1298,13 @@ public class EntityBuilder extends AbstractEntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = createStageChannelFromPartialGuild(guild, json);
+                channel = new StageChannelImpl(id, guild);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
 
+        configureStageChannel(json, channel);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1347,7 +1352,8 @@ public class EntityBuilder extends AbstractEntityBuilder
                     UnlockHook vlock = guildThreadView.writeLock();
                     UnlockHook jlock = threadView.writeLock())
             {
-                channel = createThreadChannelFromPartialGuild(guild, json);
+                final ChannelType type = ChannelType.fromId(json.getInt("type"));
+                channel = new ThreadChannelImpl(id, guild, type);
                 if (modifyCache)
                 {
                     guildThreadView.put(channel);
@@ -1356,6 +1362,7 @@ public class EntityBuilder extends AbstractEntityBuilder
             }
         }
 
+        configureThreadChannel(json, channel);
         channel.setParentChannel(parent);
 
         //If the bot in the thread already, then create a thread member for the bot.
@@ -1422,11 +1429,12 @@ public class EntityBuilder extends AbstractEntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = createForumChannelFromPartialGuild(guild, json);
+                channel = new ForumChannelImpl(id, guild);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
+        configureForumChannel(json, channel);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
@@ -1462,11 +1470,12 @@ public class EntityBuilder extends AbstractEntityBuilder
                     UnlockHook glock = guildView.writeLock();
                     UnlockHook jlock = globalView.writeLock())
             {
-                channel = createMediaChannelFromPartialGuild(guild, json);
+                channel = new MediaChannelImpl(id, guild);
                 guildView.put(channel);
                 playbackCache = globalView.put(channel) == null;
             }
         }
+        configureMediaChannel(json, channel);
         createOverridesPass(channel, json.getArray("permission_overwrites"));
         if (playbackCache)
             getJDA().getEventCache().playbackCache(EventCache.Type.CHANNEL, id);
