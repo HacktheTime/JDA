@@ -599,6 +599,7 @@ public class EntityBuilder extends AbstractEntityBuilder
         {
             // Create a brand new member
             member = new MemberImpl(guild, user);
+            configureMember(memberJson, member);
             Set<Role> roles = member.getRoleSet();
             for (int i = 0; i < roleArray.length(); i++)
             {
