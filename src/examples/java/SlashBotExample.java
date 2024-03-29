@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -56,7 +57,7 @@ public class SlashBotExample extends ListenerAdapter
                 .addOptions(new OptionData(INTEGER, "del_days", "Delete messages from the past days.") // This is optional
                     .setRequiredRange(0, 7)) // Only allow values between 0 and 7 (inclusive)
                 .addOptions(new OptionData(STRING, "reason", "The ban reason to use (default: Banned by <user>)")) // optional reason
-                .setGuildOnly(true) // This way the command can only be executed from a guild, and not the DMs
+                .setContexts(InteractionContextType.GUILD) // This way the command can only be executed from a guild, and not the DMs
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.BAN_MEMBERS)) // Only members with the BAN_MEMBERS permission are going to see this command
         );
 
@@ -69,14 +70,14 @@ public class SlashBotExample extends ListenerAdapter
         // Commands without any inputs
         commands.addCommands(
             Commands.slash("leave", "Make the bot leave the server")
-                .setGuildOnly(true) // this doesn't make sense in DMs
+                .setContexts(InteractionContextType.GUILD) // this doesn't make sense in DMs
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED) // only admins should be able to use this command.
         );
 
         commands.addCommands(
             Commands.slash("prune", "Prune messages from this channel")
                 .addOption(INTEGER, "amount", "How many messages to prune (Default 100)") // simple optional argument
-                .setGuildOnly(true)
+                .setContexts(InteractionContextType.GUILD)
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
         );
 
