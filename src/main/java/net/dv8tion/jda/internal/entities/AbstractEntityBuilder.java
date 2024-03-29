@@ -16,6 +16,8 @@
 
 package net.dv8tion.jda.internal.entities;
 
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.RoleIcon;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -225,5 +227,25 @@ public abstract class AbstractEntityBuilder
         {
             member.setJoinDate(Helpers.toTimestamp(memberJson.getString("joined_at")));
         }
+    }
+
+    protected void configureRole(DataObject roleJson, RoleImpl role, long id)
+    {
+        final int color = roleJson.getInt("color");
+        role.setName(roleJson.getString("name"))
+                .setRawPosition(roleJson.getInt("position"))
+                .setRawPermissions(roleJson.getLong("permissions"))
+                .setManaged(roleJson.getBoolean("managed"))
+                .setHoisted(roleJson.getBoolean("hoist"))
+                .setColor(color == 0 ? Role.DEFAULT_COLOR_RAW : color)
+                .setMentionable(roleJson.getBoolean("mentionable"))
+                .setTags(roleJson.optObject("tags").orElseGet(DataObject::empty));
+
+        final String iconId = roleJson.getString("icon", null);
+        final String emoji = roleJson.getString("unicode_emoji", null);
+        if (iconId == null && emoji == null)
+            role.setIcon(null);
+        else
+            role.setIcon(new RoleIcon(iconId, emoji, id));
     }
 }

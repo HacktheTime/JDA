@@ -17,6 +17,8 @@
 package net.dv8tion.jda.internal.entities;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.PartialGuild;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.*;
@@ -189,5 +191,16 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
             member.setInteractionPermissions(new MemberInteractionPermissions(interactionChannelId, memberJson.getLong("permissions")));
 
         return member;
+    }
+
+    public Role createRole(PartialGuild guild, DataObject roleJson)
+    {
+        if (guild.isGuild())
+            return entityBuilder.createRole((GuildImpl) guild, roleJson, guild.getIdLong());
+
+        final long id = roleJson.getLong("id");
+        RoleImpl role = new RoleImpl(id, guild);
+        configureRole(roleJson, role, id);
+        return role;
     }
 }

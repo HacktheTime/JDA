@@ -134,7 +134,7 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
                         {
                             if (hasGuild())
                                 return guild.asGuild().getRoleById(roleId);
-                            return entityBuilder.createRoleFromPartialGuild(guild, roles.getObject(roleId));
+                            return interactionEntityBuilder.createRole(guild, roles.getObject(roleId));
                         })
                         .filter(Objects::nonNull)
                         .forEach(role -> resolved.put(role.getIdLong(), role));
