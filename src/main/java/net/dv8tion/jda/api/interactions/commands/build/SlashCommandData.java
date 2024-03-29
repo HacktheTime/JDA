@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.internal.utils.Checks;
+import net.dv8tion.jda.internal.utils.Helpers;
 import net.dv8tion.jda.internal.utils.localization.LocalizationUtils;
 
 import javax.annotation.Nonnull;
@@ -669,6 +670,12 @@ public interface SlashCommandData extends CommandData
         String description = object.getString("description");
         DataArray options = object.optArray("options").orElseGet(DataArray::empty);
         CommandDataImpl command = new CommandDataImpl(name, description);
+        command.setContexts(object.getArray("contexts").stream(DataArray::getString)
+                        .map(InteractionContextType::fromKey)
+                        .collect(Helpers.toUnmodifiableEnumSet(InteractionContextType.class)));
+        command.setIntegrationTypes(object.getArray("integration_types").stream(DataArray::getString)
+                .map(IntegrationType::fromKey)
+                .collect(Helpers.toUnmodifiableEnumSet(IntegrationType.class)));
         command.setNSFW(object.getBoolean("nsfw"));
 
         command.setDefaultPermissions(

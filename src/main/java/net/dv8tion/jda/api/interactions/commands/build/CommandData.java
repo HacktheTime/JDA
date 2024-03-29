@@ -325,6 +325,12 @@ public interface CommandData extends SerializableData
                 data.setDefaultPermissions(defaultPermissions == 0 ? DefaultMemberPermissions.DISABLED : DefaultMemberPermissions.enabledFor(defaultPermissions));
             }
 
+            data.setContexts(object.getArray("contexts").stream(DataArray::getString)
+                    .map(InteractionContextType::fromKey)
+                    .collect(Helpers.toUnmodifiableEnumSet(InteractionContextType.class)));
+            data.setIntegrationTypes(object.getArray("integration_types").stream(DataArray::getString)
+                    .map(IntegrationType::fromKey)
+                    .collect(Helpers.toUnmodifiableEnumSet(IntegrationType.class)));
             data.setNSFW(object.getBoolean("nsfw"));
             data.setNameLocalizations(LocalizationUtils.mapFromProperty(object, "name_localizations"));
             data.setDescriptionLocalizations(LocalizationUtils.mapFromProperty(object, "description_localizations"));
