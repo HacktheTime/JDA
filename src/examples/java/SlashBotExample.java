@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.IntegrationType;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
@@ -64,6 +65,8 @@ public class SlashBotExample extends ListenerAdapter
         // Simple reply commands
         commands.addCommands(
             Commands.slash("say", "Makes the bot say what you tell it to")
+                .setContexts(InteractionContextType.ALL) // Allow the command to be used anywhere (Bot DMs, Guild, Friend DMs, Group DMs)
+                .setIntegrationTypes(IntegrationType.ALL) // Allow the command to be installed anywhere (Guilds, Users)
                 .addOption(STRING, "content", "What the bot should say", true) // you can add required options like this too
         );
 
@@ -89,8 +92,11 @@ public class SlashBotExample extends ListenerAdapter
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event)
     {
-        // Only accept commands from guilds
-        if (event.getGuild() == null)
+        // Only accept commands from guilds.
+        // As this also supports commands installed on user accounts,
+        // we need to make sure not to use the full guild object (getGuild()),
+        // as it may not be available (for example, when using /say in a guild the bot isn't in).
+        if (!event.isFromGuild())
             return;
         switch (event.getName())
         {
