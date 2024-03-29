@@ -15,6 +15,8 @@
  */
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CommandDataTest
@@ -37,7 +40,8 @@ public class CommandDataTest
     public void testNormal()
     {
         CommandData command = new CommandDataImpl("ban", "Ban a user from this server")
-                .setGuildOnly(true)
+                .setContexts(InteractionContextType.GUILD)
+                .setIntegrationTypes(IntegrationType.USER_INSTALL)
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.BAN_MEMBERS))
                 .addOption(OptionType.USER, "user", "The user to ban", true) // required before non-required
                 .addOption(OptionType.STRING, "reason", "The ban reason") // test that default is false
@@ -46,7 +50,8 @@ public class CommandDataTest
         DataObject data = command.toData();
         Assertions.assertEquals("ban", data.getString("name"));
         Assertions.assertEquals("Ban a user from this server", data.getString("description"));
-        Assertions.assertFalse(data.getBoolean("dm_permission"));
+        Assertions.assertEquals(Collections.singletonList(InteractionContextType.GUILD.getType()), data.getArray("contexts").toList());
+        Assertions.assertEquals(Collections.singletonList(IntegrationType.USER_INSTALL.getType()), data.getArray("integration_types").toList());
         Assertions.assertEquals(Permission.BAN_MEMBERS.getRawValue(), data.getUnsignedLong("default_member_permissions"));
 
         DataArray options = data.getArray("options");
@@ -65,6 +70,17 @@ public class CommandDataTest
         Assertions.assertFalse(option.getBoolean("required"));
         Assertions.assertEquals("days", option.getString("name"));
         Assertions.assertEquals("The duration of the ban", option.getString("description"));
+    }
+
+    @Test
+    public void testDeprecatedGuildOnly()
+    {
+        CommandData command = new CommandDataImpl("ban", "Ban a user from this server")
+                .setGuildOnly(true);
+
+        DataObject data = command.toData();
+        Assertions.assertEquals(Collections.singletonList(InteractionContextType.GUILD.getType()), data.getArray("contexts").toList());
+        Assertions.assertEquals(Collections.singletonList(IntegrationType.GUILD_INSTALL.getType()), data.getArray("integration_types").toList());
     }
 
     @Test
