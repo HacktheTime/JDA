@@ -95,13 +95,17 @@ public class CommandImpl implements Command
                         .map(InteractionContextType::fromKey)
                         .collect(Helpers.toUnmodifiableEnumSet(InteractionContextType.class))
                 )
-                .orElse(EnumSet.noneOf(InteractionContextType.class));
+                // If the command is in a guild, it can only be guild, otherwise it's guild + bot DMs
+                .orElse(guildId != 0L
+                        ? Collections.unmodifiableSet(EnumSet.of(InteractionContextType.GUILD))
+                        : Collections.unmodifiableSet(EnumSet.of(InteractionContextType.GUILD, InteractionContextType.BOT_DM))
+                );
         this.integrationTypes = json.optArray("integration_types")
                 .map(d -> d.stream(DataArray::getString)
                         .map(IntegrationType::fromKey)
                         .collect(Helpers.toUnmodifiableEnumSet(IntegrationType.class))
                 )
-                .orElse(EnumSet.noneOf(IntegrationType.class));
+                .orElse(Collections.unmodifiableSet(EnumSet.of(IntegrationType.GUILD_INSTALL)));
         this.nsfw = json.getBoolean("nsfw");
     }
 

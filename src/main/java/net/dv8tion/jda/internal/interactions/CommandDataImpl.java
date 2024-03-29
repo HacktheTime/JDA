@@ -50,8 +50,8 @@ public class CommandDataImpl implements SlashCommandData
     private boolean allowSubcommands = true;
     private boolean allowOption = true;
     private boolean allowRequired = true;
-    private EnumSet<InteractionContextType> contexts = EnumSet.noneOf(InteractionContextType.class);
-    private EnumSet<IntegrationType> integrationTypes = EnumSet.noneOf(IntegrationType.class);
+    private EnumSet<InteractionContextType> contexts = EnumSet.of(InteractionContextType.GUILD, InteractionContextType.BOT_DM);
+    private EnumSet<IntegrationType> integrationTypes = EnumSet.of(IntegrationType.GUILD_INSTALL);
     private boolean nsfw = false;
     private DefaultMemberPermissions defaultMemberPermissions = DefaultMemberPermissions.ENABLED;
 
