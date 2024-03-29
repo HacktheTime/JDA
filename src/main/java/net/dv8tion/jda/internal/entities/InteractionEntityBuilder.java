@@ -16,8 +16,10 @@
 
 package net.dv8tion.jda.internal.entities;
 
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
@@ -34,6 +36,7 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
 {
     private static final Logger LOG = JDALogger.getLog(InteractionEntityBuilder.class);
 
+    private final EntityBuilder entityBuilder = api.getEntityBuilder();
     private final long interactionChannelId;
     private final long interactionUserId;
 
@@ -69,8 +72,11 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
         }
     }
 
-    public CategoryImpl createCategory(PartialGuildImpl guild, DataObject json)
+    public Category createCategory(PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createCategory(json, guild.getIdLong());
+
         final long id = json.getLong("id");
         final CategoryImpl channel = new CategoryImpl(id, guild);
         configureCategory(json, channel);
@@ -78,26 +84,35 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
         return channel;
     }
 
-    public TextChannelImpl createTextChannel(PartialGuildImpl guildObj, DataObject json)
+    public TextChannel createTextChannel(PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createTextChannel(json, guild.getIdLong());
+
         final long id = json.getLong("id");
-        TextChannelImpl channel = new TextChannelImpl(id, guildObj);
+        TextChannelImpl channel = new TextChannelImpl(id, guild);
         configureTextChannel(json, channel);
         configureChannelInteractionPermissions(channel, json);
         return channel;
     }
 
-    public NewsChannelImpl createNewsChannel(@Nonnull PartialGuildImpl guildObj, DataObject json)
+    public NewsChannel createNewsChannel(@Nonnull PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createNewsChannel(json, guild.getIdLong());
+
         final long id = json.getLong("id");
-        NewsChannelImpl channel = new NewsChannelImpl(id, guildObj);
+        NewsChannelImpl channel = new NewsChannelImpl(id, guild);
         configureNewsChannel(json, channel);
         configureChannelInteractionPermissions(channel, json);
         return channel;
     }
 
-    public VoiceChannelImpl createVoiceChannel(@Nonnull PartialGuildImpl guild, DataObject json)
+    public VoiceChannel createVoiceChannel(@Nonnull PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createVoiceChannel(json, guild.getIdLong());
+
         final long id = json.getLong("id");
         VoiceChannelImpl channel = new VoiceChannelImpl(id, guild);
         configureVoiceChannel(json, channel);
@@ -105,8 +120,11 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
         return channel;
     }
 
-    public StageChannelImpl createStageChannel(@Nonnull PartialGuildImpl guild, DataObject json)
+    public StageChannel createStageChannel(@Nonnull PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createStageChannel(json, guild.getIdLong());
+
         final long id = json.getLong("id");
         final StageChannelImpl channel = new StageChannelImpl(id, guild);
         configureStageChannel(json, channel);
@@ -114,8 +132,11 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
         return channel;
     }
 
-    public MediaChannelImpl createMediaChannel(PartialGuildImpl guild, DataObject json)
+    public MediaChannel createMediaChannel(PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createMediaChannel(json, guild.getIdLong());
+
         final long id = json.getLong("id");
         final MediaChannelImpl channel = new MediaChannelImpl(id, guild);
         configureMediaChannel(json, channel);
@@ -123,8 +144,11 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
         return channel;
     }
 
-    public ThreadChannelImpl createThreadChannel(PartialGuildImpl guild, DataObject json)
+    public ThreadChannel createThreadChannel(PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createThreadChannel(json, guild.getIdLong());
+
         final long id = json.getUnsignedLong("id");
         final ChannelType type = ChannelType.fromId(json.getInt("type"));
         ThreadChannelImpl channel = new ThreadChannelImpl(id, guild, type);
@@ -133,8 +157,11 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
         return channel;
     }
 
-    public ForumChannelImpl createForumChannel(PartialGuildImpl guild, DataObject json)
+    public ForumChannel createForumChannel(PartialGuildImpl guild, DataObject json)
     {
+        if (guild.isGuild())
+            return entityBuilder.createForumChannel(json, guild.getIdLong());
+
         final long id = json.getLong("id");
         final ForumChannelImpl channel = new ForumChannelImpl(id, guild);
         configureForumChannel(json, channel);
@@ -148,12 +175,12 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
             channel.setInteractionPermissions(new ChannelInteractionPermissions(interactionUserId, json.getLong("permissions")));
     }
 
-    public MemberImpl createMember(PartialGuildImpl guild, DataObject memberJson)
+    public Member createMember(PartialGuildImpl guild, DataObject memberJson)
     {
         if (guild.isGuild())
-            return getJDA().getEntityBuilder().createMember((GuildImpl) guild, memberJson);
+            return entityBuilder.createMember((GuildImpl) guild, memberJson);
 
-        User user = api.getEntityBuilder().createUser(memberJson.getObject("user"));
+        User user = entityBuilder.createUser(memberJson.getObject("user"));
         MemberImpl member = new MemberImpl(guild, user);
         configureMember(memberJson, member);
 
