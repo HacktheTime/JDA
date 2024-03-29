@@ -222,11 +222,8 @@ public abstract class AbstractEntityBuilder
         if (!memberJson.isNull("pending"))
             member.setPending(memberJson.getBoolean("pending"));
 
-        // Load joined_at if necessary
-        if (!memberJson.isNull("joined_at") && !member.hasTimeJoined())
-        {
+        if (!memberJson.isNull("joined_at"))
             member.setJoinDate(Helpers.toTimestamp(memberJson.getString("joined_at")));
-        }
     }
 
     protected void configureRole(DataObject roleJson, RoleImpl role, long id)
