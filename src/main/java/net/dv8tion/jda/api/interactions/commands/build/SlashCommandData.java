@@ -669,7 +669,6 @@ public interface SlashCommandData extends CommandData
         String description = object.getString("description");
         DataArray options = object.optArray("options").orElseGet(DataArray::empty);
         CommandDataImpl command = new CommandDataImpl(name, description);
-        command.setGuildOnly(!object.getBoolean("dm_permission", true));
         command.setNSFW(object.getBoolean("nsfw"));
 
         command.setDefaultPermissions(

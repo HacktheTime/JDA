@@ -23,10 +23,12 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction;
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationMap;
+import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.api.utils.data.SerializableData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.internal.utils.Checks;
+import net.dv8tion.jda.internal.utils.Helpers;
 import net.dv8tion.jda.internal.utils.localization.LocalizationUtils;
 
 import javax.annotation.Nonnull;
@@ -281,7 +283,6 @@ public interface CommandData extends SerializableData
         {
             final CommandDataImpl data = new CommandDataImpl(command.getType(), command.getName());
             return data.setDefaultPermissions(command.getDefaultPermissions())
-                    .setGuildOnly(command.isGuildOnly())
                     .setContexts(command.getContexts())
                     .setIntegrationTypes(command.getIntegrationTypes())
                     .setNSFW(command.isNSFW())
@@ -324,7 +325,6 @@ public interface CommandData extends SerializableData
                 data.setDefaultPermissions(defaultPermissions == 0 ? DefaultMemberPermissions.DISABLED : DefaultMemberPermissions.enabledFor(defaultPermissions));
             }
 
-            data.setGuildOnly(!object.getBoolean("dm_permission", true));
             data.setNSFW(object.getBoolean("nsfw"));
             data.setNameLocalizations(LocalizationUtils.mapFromProperty(object, "name_localizations"));
             data.setDescriptionLocalizations(LocalizationUtils.mapFromProperty(object, "description_localizations"));

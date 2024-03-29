@@ -63,7 +63,7 @@ public class CommandImpl implements Command
     private final List<Command.SubcommandGroup> groups;
     private final List<Command.Subcommand> subcommands;
     private final long id, guildId, applicationId, version;
-    private final boolean guildOnly, nsfw;
+    private final boolean nsfw;
     private final Set<InteractionContextType> contexts;
     private final Set<IntegrationType> integrationTypes;
     private final Command.Type type;
@@ -90,7 +90,6 @@ public class CommandImpl implements Command
                 ? DefaultMemberPermissions.ENABLED
                 : DefaultMemberPermissions.enabledFor(json.getLong("default_member_permissions"));
 
-        this.guildOnly = !json.getBoolean("dm_permission", true);
         this.contexts = json.optArray("contexts")
                 .map(d -> d.stream(DataArray::getString)
                         .map(InteractionContextType::fromKey)
@@ -239,7 +238,7 @@ public class CommandImpl implements Command
     @Override
     public boolean isGuildOnly()
     {
-        return guildOnly;
+        return contexts.size() == 1 && contexts.contains(InteractionContextType.GUILD);
     }
 
     @Nonnull

@@ -50,7 +50,6 @@ public class CommandDataImpl implements SlashCommandData
     private boolean allowSubcommands = true;
     private boolean allowOption = true;
     private boolean allowRequired = true;
-    private boolean guildOnly = false;
     private EnumSet<InteractionContextType> contexts = EnumSet.noneOf(InteractionContextType.class);
     private EnumSet<IntegrationType> integrationTypes = EnumSet.noneOf(IntegrationType.class);
     private boolean nsfw = false;
@@ -109,7 +108,6 @@ public class CommandDataImpl implements SlashCommandData
                 .put("name", name)
                 .put("nsfw", nsfw)
                 .put("options", options)
-                .put("dm_permission", !guildOnly)
                 .put("contexts", contexts.stream().map(InteractionContextType::getType).collect(Collectors.toList()))
                 .put("integration_types", integrationTypes.stream().map(IntegrationType::getType).collect(Collectors.toList()))
                 .put("default_member_permissions", defaultMemberPermissions == DefaultMemberPermissions.ENABLED
@@ -142,7 +140,7 @@ public class CommandDataImpl implements SlashCommandData
     @Override
     public boolean isGuildOnly()
     {
-        return guildOnly;
+        return contexts.size() == 1 && contexts.contains(InteractionContextType.GUILD);
     }
 
     @Nonnull
@@ -208,7 +206,9 @@ public class CommandDataImpl implements SlashCommandData
     @Override
     public CommandDataImpl setGuildOnly(boolean guildOnly)
     {
-        this.guildOnly = guildOnly;
+        setContexts(guildOnly
+                ? EnumSet.of(InteractionContextType.GUILD)
+                : EnumSet.of(InteractionContextType.GUILD, InteractionContextType.BOT_DM));
         return this;
     }
 
