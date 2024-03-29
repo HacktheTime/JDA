@@ -44,9 +44,6 @@ import net.dv8tion.jda.internal.requests.WebSocketClient;
 
 public class InteractionCreateHandler extends SocketHandler
 {
-    public static final ThreadLocal<Long> INTERACTION_USER = new ThreadLocal<>();
-    public static final ThreadLocal<Long> INTERACTION_CHANNEL = new ThreadLocal<>();
-
     public InteractionCreateHandler(JDAImpl api)
     {
         super(api);
@@ -76,16 +73,8 @@ public class InteractionCreateHandler extends SocketHandler
             return null;
         }
 
-        // Assign the channel and the user id of the interaction,
-        // so they can be associated with the Discord-computed permissions
-        DataObject userContainer = content.optObject("member").orElse(content);
-        try
+        switch (InteractionType.fromKey(type))
         {
-            INTERACTION_CHANNEL.set(content.getLong("channel_id"));
-            INTERACTION_USER.set(userContainer.getObject("user").getUnsignedLong("id"));
-
-            switch (InteractionType.fromKey(type))
-            {
             case COMMAND: // slash commands
                 handleCommand(content);
                 break;
@@ -94,24 +83,18 @@ public class InteractionCreateHandler extends SocketHandler
                 break;
             case COMMAND_AUTOCOMPLETE:
                 api.handleEvent(
-                        new CommandAutoCompleteInteractionEvent(api, responseNumber,
-                                new CommandAutoCompleteInteractionImpl(api, content)));
+                    new CommandAutoCompleteInteractionEvent(api, responseNumber,
+                        new CommandAutoCompleteInteractionImpl(api, content)));
                 break;
             case MODAL_SUBMIT:
                 api.handleEvent(
-                        new ModalInteractionEvent(api, responseNumber,
-                                new ModalInteractionImpl(api, content)));
+                    new ModalInteractionEvent(api, responseNumber,
+                        new ModalInteractionImpl(api, content)));
                 break;
             default:
                 api.handleEvent(
-                        new GenericInteractionCreateEvent(api, responseNumber,
-                                new InteractionImpl(api, content)));
-            }
-        }
-        finally
-        {
-            INTERACTION_CHANNEL.remove();
-            INTERACTION_USER.remove();
+                    new GenericInteractionCreateEvent(api, responseNumber,
+                        new InteractionImpl(api, content)));
         }
 
         return null;

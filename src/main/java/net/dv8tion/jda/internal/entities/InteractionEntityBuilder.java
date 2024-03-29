@@ -16,6 +16,7 @@
 
 package net.dv8tion.jda.internal.entities;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.data.DataObject;
@@ -23,6 +24,7 @@ import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.channel.concrete.*;
 import net.dv8tion.jda.internal.entities.channel.mixin.attribute.IInteractionPermissionMixin;
 import net.dv8tion.jda.internal.interactions.ChannelInteractionPermissions;
+import net.dv8tion.jda.internal.interactions.MemberInteractionPermissions;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
 
@@ -144,5 +146,21 @@ public class InteractionEntityBuilder extends AbstractEntityBuilder
     {
         if (!channel.hasGuild())
             channel.setInteractionPermissions(new ChannelInteractionPermissions(interactionUserId, json.getLong("permissions")));
+    }
+
+    public MemberImpl createMember(PartialGuildImpl guild, DataObject memberJson)
+    {
+        if (guild.isGuild())
+            return getJDA().getEntityBuilder().createMember((GuildImpl) guild, memberJson);
+
+        User user = api.getEntityBuilder().createUser(memberJson.getObject("user"));
+        MemberImpl member = new MemberImpl(guild, user);
+        configureMember(memberJson, member);
+
+        // Absent outside interactions and in message mentions
+        if (memberJson.hasKey("permissions"))
+            member.setInteractionPermissions(new MemberInteractionPermissions(interactionChannelId, memberJson.getLong("permissions")));
+
+        return member;
     }
 }

@@ -67,9 +67,7 @@ import net.dv8tion.jda.internal.entities.emoji.RichCustomEmojiImpl;
 import net.dv8tion.jda.internal.entities.emoji.UnicodeEmojiImpl;
 import net.dv8tion.jda.internal.entities.sticker.*;
 import net.dv8tion.jda.internal.handle.EventCache;
-import net.dv8tion.jda.internal.handle.InteractionCreateHandler;
 import net.dv8tion.jda.internal.interactions.IntegrationOwnersImpl;
-import net.dv8tion.jda.internal.interactions.MemberInteractionPermissions;
 import net.dv8tion.jda.internal.utils.Helpers;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import net.dv8tion.jda.internal.utils.UnlockHook;
@@ -591,49 +589,6 @@ public class EntityBuilder extends AbstractEntityBuilder
         return createMember(guild, memberJson, null, null);
     }
 
-    public MemberImpl createBestMember(PartialGuildImpl guild, DataObject memberJson)
-    {
-        if (guild instanceof GuildImpl)
-            return createMember((GuildImpl) guild, memberJson);
-        else
-            return createMemberFromPartialGuild(guild, memberJson);
-    }
-
-    public MemberImpl createMemberFromPartialGuild(PartialGuildImpl guild, DataObject memberJson)
-    {
-        User user = createUser(memberJson.getObject("user"));
-        MemberImpl member = new MemberImpl(guild, user);
-        member.setNickname(memberJson.getString("nick", null));
-        member.setAvatarId(memberJson.getString("avatar", null));
-        if (!memberJson.isNull("flags"))
-            member.setFlags(memberJson.getInt("flags"));
-
-        long boostTimestamp = memberJson.isNull("premium_since")
-                ? 0
-                : Helpers.toTimestamp(memberJson.getString("premium_since"));
-        member.setBoostDate(boostTimestamp);
-
-        long timeOutTimestamp = memberJson.isNull("communication_disabled_until")
-                ? 0
-                : Helpers.toTimestamp(memberJson.getString("communication_disabled_until"));
-        member.setTimeOutEnd(timeOutTimestamp);
-
-        if (!memberJson.isNull("pending"))
-            member.setPending(memberJson.getBoolean("pending"));
-
-        // Load joined_at if necessary
-        if (!memberJson.isNull("joined_at") && !member.hasTimeJoined())
-        {
-            member.setJoinDate(Helpers.toTimestamp(memberJson.getString("joined_at")));
-        }
-
-        // Absent outside interactions and in message mentions
-        if (memberJson.hasKey("permissions"))
-            member.setInteractionPermissions(new MemberInteractionPermissions(InteractionCreateHandler.INTERACTION_CHANNEL.get(), memberJson.getLong("permissions")));
-
-        return member;
-    }
-
     public MemberImpl createMember(GuildImpl guild, DataObject memberJson, DataObject voiceStateJson, DataObject presence)
     {
         boolean playbackCache = false;
@@ -643,7 +598,7 @@ public class EntityBuilder extends AbstractEntityBuilder
         if (member == null)
         {
             // Create a brand new member
-            member = createMemberFromPartialGuild(guild, memberJson);
+            member = new MemberImpl(guild, user);
             Set<Role> roles = member.getRoleSet();
             for (int i = 0; i < roleArray.length(); i++)
             {

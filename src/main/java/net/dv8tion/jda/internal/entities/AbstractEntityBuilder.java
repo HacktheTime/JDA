@@ -199,4 +199,31 @@ public abstract class AbstractEntityBuilder
            .setPosition(index);
         return tag;
     }
+
+    protected void configureMember(DataObject memberJson, MemberImpl member)
+    {
+        member.setNickname(memberJson.getString("nick", null));
+        member.setAvatarId(memberJson.getString("avatar", null));
+        if (!memberJson.isNull("flags"))
+            member.setFlags(memberJson.getInt("flags"));
+
+        long boostTimestamp = memberJson.isNull("premium_since")
+                ? 0
+                : Helpers.toTimestamp(memberJson.getString("premium_since"));
+        member.setBoostDate(boostTimestamp);
+
+        long timeOutTimestamp = memberJson.isNull("communication_disabled_until")
+                ? 0
+                : Helpers.toTimestamp(memberJson.getString("communication_disabled_until"));
+        member.setTimeOutEnd(timeOutTimestamp);
+
+        if (!memberJson.isNull("pending"))
+            member.setPending(memberJson.getBoolean("pending"));
+
+        // Load joined_at if necessary
+        if (!memberJson.isNull("joined_at") && !member.hasTimeJoined())
+        {
+            member.setJoinDate(Helpers.toTimestamp(memberJson.getString("joined_at")));
+        }
+    }
 }

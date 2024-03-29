@@ -95,7 +95,7 @@ public class InteractionImpl implements Interaction
         }
         else if (guild != null)
         {
-            member = jda.getEntityBuilder().createMemberFromPartialGuild(guild, data.getObject("member"));
+            member = interactionEntityBuilder.createMember(guild, data.getObject("member"));
             user = member.getUser();
 
             if (ChannelType.fromId(channelJson.getInt("type")).isThread())

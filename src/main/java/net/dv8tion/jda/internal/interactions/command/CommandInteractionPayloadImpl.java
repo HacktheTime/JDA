@@ -19,6 +19,7 @@ package net.dv8tion.jda.internal.interactions.command;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
@@ -112,7 +113,6 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
 
         if (this.guild != null)
         {
-//            GuildImpl guild = (GuildImpl) this.guild;
             resolveJson.optObject("members").ifPresent(members ->
             {
                 DataObject users = resolveJson.getObject("users");
@@ -120,9 +120,9 @@ public class CommandInteractionPayloadImpl extends InteractionImpl implements Co
                 {
                     DataObject memberJson = members.getObject(memberId);
                     memberJson.put("user", users.getObject(memberId)); // Add user json as well for parsing
-                    MemberImpl optionMember = entityBuilder.createBestMember(guild, memberJson);
+                    Member optionMember = interactionEntityBuilder.createMember(guild, memberJson);
                     if (hasGuild())
-                        entityBuilder.updateMemberCache(optionMember);
+                        entityBuilder.updateMemberCache((MemberImpl) optionMember);
                     resolved.put(optionMember.getIdLong(), optionMember); // This basically upgrades user to member
                 });
             });
