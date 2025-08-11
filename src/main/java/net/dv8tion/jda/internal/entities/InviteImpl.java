@@ -335,32 +335,35 @@ public class InviteImpl implements Invite
 
     public static class GuildImpl implements Guild
     {
-        private final String iconId, name, splashId;
+        private final String iconId, name, splashId, description;
         private final int presenceCount, memberCount;
         private final long id;
         private final VerificationLevel verificationLevel;
         private final Set<String> features;
         private final GuildWelcomeScreen welcomeScreen;
+        private final net.dv8tion.jda.api.entities.Guild.NSFWLevel nsfwLevel;
 
-        public GuildImpl(final long id, final String iconId, final String name, final String splashId,
+        public GuildImpl(final long id, final String iconId, final String name, final String splashId, String description,
                          final VerificationLevel verificationLevel, final int presenceCount, final int memberCount, final Set<String> features,
-                         final GuildWelcomeScreen welcomeScreen)
+                         final GuildWelcomeScreen welcomeScreen, net.dv8tion.jda.api.entities.Guild.NSFWLevel nsfwLevel)
         {
             this.id = id;
             this.iconId = iconId;
             this.name = name;
             this.splashId = splashId;
+            this.description = description;
             this.verificationLevel = verificationLevel;
             this.presenceCount = presenceCount;
             this.memberCount = memberCount;
             this.features = features;
             this.welcomeScreen = welcomeScreen;
+            this.nsfwLevel = nsfwLevel;
         }
 
         public GuildImpl(final net.dv8tion.jda.api.entities.Guild guild)
         {
-            this(guild.getIdLong(), guild.getIconId(), guild.getName(), guild.getSplashId(),
-                 guild.getVerificationLevel(), -1, -1, guild.getFeatures(), null);
+            this(guild.getIdLong(), guild.getIconId(), guild.getName(), guild.getSplashId(), guild.getDescription(),
+                 guild.getVerificationLevel(), -1, -1, guild.getFeatures(), null, guild.getNSFWLevel());
         }
 
         @Override
@@ -387,6 +390,20 @@ public class InviteImpl implements Invite
         public String getName()
         {
             return this.name;
+        }
+
+        @Override
+        @Nullable
+        public @org.jetbrains.annotations.Nullable String getDescription()
+        {
+            return description;
+        }
+
+        @Override
+        @Nonnull
+        public net.dv8tion.jda.api.entities.Guild.NSFWLevel getNSFWLevel()
+        {
+            return nsfwLevel;
         }
 
         @Override

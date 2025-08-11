@@ -401,6 +401,25 @@ public interface Invite
         String getName();
 
         /**
+         * The description of this guild.
+         *
+         * @return The guild's description
+         */
+        @Nullable
+        String getDescription();
+
+        /**
+         * Guild NSFW Level
+         *
+         * @return NSFW Level of the guild
+         *
+         * @see net.dv8tion.jda.api.entities.Guild.NSFWLevel
+         */
+
+        net.dv8tion.jda.api.entities.Guild.NSFWLevel getNSFWLevel();
+
+
+        /**
          * The splash image id of this guild.
          *
          * @return The guild's splash image id or {@code null} if the guild has no splash image
